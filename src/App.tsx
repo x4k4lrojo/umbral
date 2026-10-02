@@ -107,14 +107,15 @@ function saveState(s: State) {
 
 function ProgressBar({ phase }: { phase: Phase }) {
   return (
-    <div className="flex items-center gap-0 border-b border-[#2E2820]">
+    <div className="flex items-center gap-0">
       {PHASES.map((label, i) => {
         const active = i === phase;
         const done = i < phase;
         return (
           <div
             key={label}
-            className="flex-1 flex flex-col items-center py-3 border-r border-[#2E2820] last:border-r-0"
+            className="flex-1 flex flex-col items-center py-3 border-r last:border-r-0"
+            style={{ borderColor: "#3D3530" }}
             style={{
               borderBottom: active ? "2px solid #B8650A" : "2px solid transparent",
               marginBottom: -1,
@@ -715,25 +716,50 @@ export default function App() {
       {/* Grid paper */}
       <div className="grid-paper" />
 
-      {/* App shell */}
-      <div className="relative z-10 min-h-screen flex flex-col">
-        {/* Header */}
-        <div className="border-b border-[#2E2820] bg-[#1A1612]">
-          <div className="max-w-lg mx-auto px-4 py-3 flex items-baseline gap-3">
-            <h1
-              className="text-sm tracking-[0.2em] uppercase"
-              style={{ fontFamily: "IBM Plex Mono", color: "#EDE5DC" }}
-            >
-              Umbral
-            </h1>
-            <span className="text-[10px] text-[#6B6058] tracking-widest">construcción de mundos</span>
+      {/* App shell — centered sheet on grid */}
+      <div className="relative z-10 min-h-screen flex flex-col items-center py-8 px-4">
+        {/* Sheet */}
+        <div
+          className="w-full flex flex-col"
+          style={{
+            maxWidth: 520,
+            minHeight: "calc(100vh - 64px)",
+            border: "1px solid #3D3530",
+            background: "#1A1612",
+          }}
+        >
+          {/* Sheet header */}
+          <div style={{ borderBottom: "1px solid #3D3530" }}>
+            <div className="flex items-baseline justify-between px-5 py-4">
+              <h1
+                className="tracking-[0.25em] uppercase"
+                style={{ fontFamily: "IBM Plex Mono", color: "#EDE5DC", fontSize: "0.75rem" }}
+              >
+                Umbral
+              </h1>
+              <span className="text-[10px] tracking-widest" style={{ color: "#6B6058" }}>
+                construcción de mundos
+              </span>
+            </div>
+            <ProgressBar phase={state.phase} />
           </div>
-          <ProgressBar phase={state.phase} />
-        </div>
 
-        {/* Content */}
-        <div className="flex-1 max-w-lg mx-auto w-full px-4 py-8">
-          {renderPhase()}
+          {/* Margin + content */}
+          <div className="flex flex-1">
+            {/* Left margin — amber rule like a real notebook */}
+            <div
+              style={{
+                width: 3,
+                background: "#B8650A",
+                flexShrink: 0,
+                opacity: 0.6,
+              }}
+            />
+            {/* Page content */}
+            <div className="flex-1 px-6 py-7">
+              {renderPhase()}
+            </div>
+          </div>
         </div>
       </div>
     </div>
