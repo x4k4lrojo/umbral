@@ -29,23 +29,27 @@ Devuelve SOLO JSON válido sin texto adicional:
 - scales: 5 restricciones de existencia para objetos de este mundo
 - wildcards: 4 propiedades inesperadas de los objetos de este mundo`;
 
-  const body = JSON.stringify({
-    model: "llama-3.3-70b-versatile",
-    messages: [{ role: "user", content: prompt }],
-    temperature: 0.9,
-    max_tokens: 800,
-  });
+  const key = import.meta.env.VITE_MISTRAL_API_KEY;
+  if (!key) throw new Error("Sin clave de API");
 
-  // Call via local Vite middleware — no CORS
-  const res = await fetch("/api/groq", {
+  // Try direct browser call to Mistral (they allow CORS)
+  const res = await fetch("https://api.mistral.ai/v1/chat/completions", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body,
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${key}`,
+    },
+    body: JSON.stringify({
+      model: "mistral-small-latest",
+      messages: [{ role: "user", content: prompt }],
+      temperature: 0.9,
+      max_tokens: 800,
+    }),
   });
 
   if (!res.ok) {
     const errText = await res.text().catch(() => "");
-    throw new Error(`Groq proxy ${res.status}: ${errText.slice(0, 200)}`);
+    throw new Error(`Mistral ${res.status}: ${errText.slice(0, 200)}`);
   }
 
   const data = await res.json();
