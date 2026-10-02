@@ -1,1 +1,10 @@
-{}
+{
+  "description": "Explore creativity through a structured five-phase journey, guiding users to build unique conceptual worlds while tracking progress seamlessly.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
