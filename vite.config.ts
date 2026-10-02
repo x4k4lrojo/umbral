@@ -1,4 +1,4 @@
-import { defineConfig, type HtmlTagDescriptor, type Plugin } from 'vite'
+import { defineConfig, type HtmlTagDescriptor, type Plugin, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import path from 'node:path'
@@ -8,6 +8,8 @@ import siteConfiguration from './.figma/make/site.json'
 
 // Vite config — https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, '.', '')
+  const groqKey = env.VITE_GROQ_API_KEY || ''
   // .figma/make/deploy-preview passes `--mode development` for cached-preview builds.
   const emitSourcemaps = mode === 'development'
 
@@ -46,7 +48,7 @@ react(),
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/api\/groq/, ''),
           headers: {
-            'Authorization': `Bearer ${process.env.VITE_GROQ_API_KEY}`,
+            'Authorization': `Bearer ${groqKey}`,
           },
         },
       },
