@@ -1,30 +1,38 @@
-exports.handler = async (event) => {
-  if (event.httpMethod !== "POST") {
-    return { statusCode: 405, body: "Method not allowed" };
+export default async (request) => {
+  if (request.method !== "POST") {
+    return new Response("Method not allowed", { status: 405 });
   }
 
-  const apiKey = process.env.MISTRAL_API_KEY;
+  const apiKey = Netlify.env.get("MISTRAL_API_KEY");
   if (!apiKey) {
-    return { statusCode: 500, body: JSON.stringify({ error: "MISTRAL_API_KEY not set" }) };
+    return new Response(JSON.stringify({ error: "MISTRAL_API_KEY not set" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 
   try {
+    const body = await request.text();
     const res = await fetch("https://api.mistral.ai/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${apiKey}`,
       },
-      body: event.body,
+      body,
     });
 
     const text = await res.text();
-    return {
-      statusCode: res.status,
+    return new Response(text, {
+      status: res.status,
       headers: { "Content-Type": "application/json" },
-      body: text,
-    };
+    });
   } catch (e) {
-    return { statusCode: 500, body: JSON.stringify({ error: String(e) }) };
+    return new Response(JSON.stringify({ error: String(e) }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 };
+
+export const config = { path: "/api/groq" };
