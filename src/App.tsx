@@ -26,6 +26,7 @@ interface State {
   rule: string;
   river: string;
   riverUsed: boolean;
+  cruceNote: string;
   projectName: string;
   userCard: string;
   scaleCard: string;
@@ -53,7 +54,7 @@ const INITIAL: State = {
   phase: 0,
   verbs: [], chosenVerb: "",
   noun: "", mother: "", cantPhoto: false, rule: "",
-  river: "", riverUsed: false,
+  river: "", riverUsed: false, cruceNote: "",
   projectName: "",
   userCard: "", scaleCard: "", medioCard: "", wildcardCard: "",
   userFlipped: false, scaleFlipped: false, medioFlipped: false, wildcardFlipped: false,
@@ -234,7 +235,7 @@ function Phase1({ state, update }: { state: State; update: (s: Partial<State>) =
     const next = state.verbs.filter(x => x !== v);
     update({ verbs: next, chosenVerb: state.chosenVerb === v ? "" : state.chosenVerb });
   };
-  const canProceed = state.verbs.length >= 3 && !!state.chosenVerb;
+  const canProceed = state.verbs.length >= 1 && !!state.chosenVerb;
 
   return (
     <div className="space-y-5">
@@ -265,6 +266,12 @@ function Phase1({ state, update }: { state: State; update: (s: Partial<State>) =
         <Hint>verbos pequeños y concretos: doblar, esperar, reparar, circular, frotar</Hint>
       </div>
 
+      {state.verbs.length === 0 && (
+        <div className="px-3 py-3 text-[11px] leading-relaxed space-y-1" style={{ border: `1px solid ${FAINT}`, color: MUTED }}>
+          <p>Con un solo verbo basta. Agrega más si quieres comparar antes de elegir.</p>
+        </div>
+      )}
+
       {state.verbs.length > 0 && (
         <div>
           <Label>Elige uno</Label>
@@ -288,10 +295,8 @@ function Phase1({ state, update }: { state: State; update: (s: Partial<State>) =
         </div>
       )}
 
-      {state.verbs.length < 3 && (
-        <p className="text-[11px]" style={{ color: MUTED }}>
-          {Math.max(0, 3 - state.verbs.length)} verbo{3 - state.verbs.length !== 1 ? "s" : ""} más antes de elegir
-        </p>
+      {state.verbs.length > 0 && !state.chosenVerb && (
+        <p className="text-[11px]" style={{ color: MUTED }}>elige un verbo para continuar</p>
       )}
       <PrimaryBtn label="Desenterrar →" enabled={canProceed} onClick={() => update({ phase: 1 })} />
     </div>
@@ -331,20 +336,31 @@ function Phase2({ state, update }: { state: State; update: (s: Partial<State>) =
         <span className="text-sm" style={{ fontFamily: "Newsreader", color: INK }}>{state.chosenVerb}</span>
       </div>
 
+      {/* Cadena de ejemplo */}
+      <div className="px-3 py-2.5 text-[11px] leading-loose" style={{ border: `1px solid ${FAINT}`, color: MUTED, fontFamily: "IBM Plex Mono" }}>
+        ejemplo — verbo: <span style={{ color: INK }}>doblar</span>
+        <span style={{ color: FAINT, margin: "0 6px" }}>→</span>
+        sustantivo: <span style={{ color: INK }}>doblez</span>
+        <span style={{ color: FAINT, margin: "0 6px" }}>→</span>
+        madre: <span style={{ color: INK }}>pliegue</span>
+        <span style={{ color: FAINT, margin: "0 6px" }}>→</span>
+        regla: <span style={{ color: INK }}>todo existe en su versión doblada</span>
+      </div>
+
       <div>
         <Label>Conviértelo en sustantivo</Label>
-        <FieldInput value={state.noun} onChange={v => update({ noun: v })} placeholder="ej. doblez, encierro, fricción..." />
-        <Hint>doblar → doblez. Un sustantivo que nombra sin explicar.</Hint>
+        <FieldInput value={state.noun} onChange={v => update({ noun: v })} placeholder={`ej. ${state.chosenVerb ? state.chosenVerb.slice(0,4) : "doblar"} → ...`} />
+        <Hint>un sustantivo que nombra sin explicar — no el proceso, la huella del proceso.</Hint>
       </div>
 
       <div>
         <Label>¿Cuál es la ley detrás del sustantivo?</Label>
-        <FieldInput value={state.mother} onChange={v => update({ mother: v })} placeholder="ej. pliegue, deuda, umbral..." />
-        <Hint>doblez → pliegue. Debe sonar a ley, no a acción. Esta es la madre.</Hint>
+        <FieldInput value={state.mother} onChange={v => update({ mother: v })} placeholder="ej. pliegue, deuda, umbral, zumbido..." />
+        <Hint>debe sonar a condición, no a acción. Si suena a verbo, sube un peldaño más.</Hint>
       </div>
 
       <div>
-        <Label>¿No se puede fotografiar directamente?</Label>
+        <Label>Confirma que la madre no tiene imagen directa</Label>
         <label className="flex items-start gap-3 cursor-pointer select-none">
           <div className="w-4 h-4 flex items-center justify-center flex-shrink-0 mt-0.5 transition-colors"
             style={{ border: `1px solid ${state.cantPhoto ? BLUE : GRID}`, background: state.cantPhoto ? BLUE : "transparent" }}
@@ -352,15 +368,18 @@ function Phase2({ state, update }: { state: State; update: (s: Partial<State>) =
             {state.cantPhoto && <span className="text-white text-xs leading-none">✓</span>}
           </div>
           <span className="text-sm leading-snug" style={{ fontFamily: "Newsreader", color: INK }}>
-            La condición existe pero no tiene imagen directa.
+            No puedo fotografiarla directamente — existe, pero no tiene forma visible.
           </span>
         </label>
         {tooConcreteBlock && (
-          <p className="text-xs mt-2 px-3 py-2.5" style={{ color: RED, border: `1px solid ${RED}` }}>
-            Todavía es muy concreto: sube un peldaño más. ¿Se puede fotografiar? Si la respuesta es sí, la madre todavía no es una ley.
-          </p>
+          <div className="mt-2 px-3 py-2.5 text-xs leading-relaxed space-y-1" style={{ color: RED, border: `1px solid ${RED}` }}>
+            <p>La madre todavía tiene imagen. Prueba esto:</p>
+            <p>· ¿Puedes nombrar lo que la produce en lugar de lo que produce?</p>
+            <p>· ¿Puedes quitarle el sustantivo concreto y quedarte con la fuerza?</p>
+            <p>Ejemplo: "papel doblado" → "doblez" → <strong>pliegue</strong>.</p>
+          </div>
         )}
-        <Hint>"pliegue" no tiene foto; "papel doblado" sí — eso es demasiado concreto.</Hint>
+        <Hint>"pliegue" no tiene foto; "papel doblado" sí. La madre es la fuerza, no el objeto.</Hint>
       </div>
 
       <div>
@@ -413,13 +432,22 @@ function Phase3({ state, update }: { state: State; update: (s: Partial<State>) =
       </div>
 
       {state.river && (
-        <div className="py-5 text-center" style={{ border: `1px solid ${INK}` }}>
-          <span className="text-[9px] uppercase tracking-widest block mb-2" style={{ color: MUTED }}>el cruce</span>
-          <p style={{ fontFamily: "Newsreader", fontSize: "1.25rem" }}>
-            <span style={{ color: BLUE }}>{state.mother}</span>
-            <span style={{ color: RED, margin: "0 12px" }}>×</span>
-            <span style={{ color: BLUE }}>{state.river}</span>
-          </p>
+        <div className="space-y-3">
+          <div className="py-5 text-center" style={{ border: `1px solid ${INK}` }}>
+            <span className="text-[9px] uppercase tracking-widest block mb-2" style={{ color: MUTED }}>el cruce</span>
+            <p style={{ fontFamily: "Newsreader", fontSize: "1.25rem" }}>
+              <span style={{ color: BLUE }}>{state.mother}</span>
+              <span style={{ color: RED, margin: "0 12px" }}>×</span>
+              <span style={{ color: BLUE }}>{state.river}</span>
+            </p>
+          </div>
+          <div>
+            <Label>¿Qué significa este cruce para ti?</Label>
+            <FieldTextarea value={state.cruceNote} onChange={v => update({ cruceNote: v })}
+              placeholder="ej. un tejido que existe solo en el punto donde se va a romper..."
+              rows={2} />
+            <Hint>no tienes que resolverlo — escribe la primera imagen que aparece.</Hint>
+          </div>
         </div>
       )}
 
@@ -477,21 +505,28 @@ function Phase4({ state, update }: { state: State; update: (s: Partial<State>) =
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <FlipCard label="Usuario" value={state.userCard} flipped={state.userFlipped} used={state.userCardUsed}
-          onFlip={() => update({ userFlipped: true })}
-          onRedraw={() => update({ userCard: pick(users, state.userCard), userCardUsed: true })} />
-        <FlipCard label="Escala" value={state.scaleCard} flipped={state.scaleFlipped} used={state.scaleCardUsed}
-          onFlip={() => update({ scaleFlipped: true })}
-          onRedraw={() => update({ scaleCard: pick(scales, state.scaleCard), scaleCardUsed: true })} />
-        <FlipCard label="Medio" value={state.medioCard} flipped={state.medioFlipped} used={state.medioCardUsed}
-          onFlip={() => update({ medioFlipped: true })}
-          onRedraw={() => update({ medioCard: pick(MEDIOS, state.medioCard), medioCardUsed: true })} />
-        <FlipCard label="Comodín" value={state.wildcardCard} flipped={state.wildcardFlipped} used={state.wildcardCardUsed}
-          onFlip={() => update({ wildcardFlipped: true })}
-          onRedraw={() => update({ wildcardCard: pick(wildcards, state.wildcardCard), wildcardCardUsed: true })} />
+      <div className="space-y-2">
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <FlipCard label="Usuario" value={state.userCard} flipped={state.userFlipped} used={state.userCardUsed}
+            onFlip={() => update({ userFlipped: true })}
+            onRedraw={() => update({ userCard: pick(users, state.userCard), userCardUsed: true })} />
+          <FlipCard label="Escala" value={state.scaleCard} flipped={state.scaleFlipped} used={state.scaleCardUsed}
+            onFlip={() => update({ scaleFlipped: true })}
+            onRedraw={() => update({ scaleCard: pick(scales, state.scaleCard), scaleCardUsed: true })} />
+          <FlipCard label="Medio" value={state.medioCard} flipped={state.medioFlipped} used={state.medioCardUsed}
+            onFlip={() => update({ medioFlipped: true })}
+            onRedraw={() => update({ medioCard: pick(MEDIOS, state.medioCard), medioCardUsed: true })} />
+          <FlipCard label="Comodín" value={state.wildcardCard} flipped={state.wildcardFlipped} used={state.wildcardCardUsed}
+            onFlip={() => update({ wildcardFlipped: true })}
+            onRedraw={() => update({ wildcardCard: pick(wildcards, state.wildcardCard), wildcardCardUsed: true })} />
+        </div>
+        <div className="px-3 py-2.5 text-[11px] leading-relaxed" style={{ border: `1px solid ${FAINT}`, color: MUTED }}>
+          <span style={{ color: INK, fontWeight: 600 }}>Usuario</span> — ancla el objeto en una relación concreta.{" "}
+          <span style={{ color: INK, fontWeight: 600 }}>Escala</span> — define cuánto existe.{" "}
+          <span style={{ color: INK, fontWeight: 600 }}>Medio</span> — en qué lenguaje aparece.{" "}
+          <span style={{ color: INK, fontWeight: 600 }}>Comodín</span> — la propiedad que no escogiste y que manda.
+        </div>
       </div>
-      <Hint>las cartas son restricciones, no sugerencias: el objeto las obedece</Hint>
 
       <div className="space-y-4 pt-3" style={{ borderTop: `1px solid ${FAINT}` }}>
         <Label>Ficha del objeto</Label>
@@ -517,7 +552,7 @@ function Phase4({ state, update }: { state: State; update: (s: Partial<State>) =
 
 const RUBRIC = [
   "¿La regla cambia la forma del objeto?",
-  "¿Funcionaría igual para cualquier otro artista?",
+  "¿El objeto podría existir en un mundo con otra regla distinta?",
   "¿Alguien que lea solo la regla podría imaginar cómo suena este mundo?",
 ];
 
