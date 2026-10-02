@@ -200,7 +200,7 @@ function Phase1({ state, update }: { state: State; update: (s: Partial<State>) =
 
       <div className="flex gap-2">
         <input
-          className="flex-1 border border-[#D9CFC6] bg-transparent px-3 py-2 text-[#2B2622] outline-none focus:border-[#B8650A]"
+          className="flex-1 border border-[#9C8F86] bg-transparent px-3 py-2 text-[#2B2622] outline-none focus:border-[#B8650A]"
           placeholder="escribe un verbo..."
           value={input}
           onChange={(e) => setInput(e.target.value)}
@@ -244,8 +244,8 @@ function Phase1({ state, update }: { state: State; update: (s: Partial<State>) =
         disabled={!canProceed}
         className="w-full border py-3 text-xs uppercase tracking-widest transition-colors"
         style={{
-          borderColor: canProceed ? "#B8650A" : "#D9CFC6",
-          color: canProceed ? "#F8EEE4" : "#A89F97",
+          borderColor: canProceed ? "#B8650A" : "#2B2622",
+          color: canProceed ? "#F8EEE4" : "#2B2622",
           background: canProceed ? "#B8650A" : "transparent",
           cursor: canProceed ? "pointer" : "not-allowed",
         }}
@@ -277,7 +277,7 @@ function Phase2({ state, update }: { state: State; update: (s: Partial<State>) =
             Conviértelo en sustantivo
           </label>
           <input
-            className="w-full border border-[#D9CFC6] bg-transparent px-3 py-2 text-[#2B2622] outline-none focus:border-[#B8650A]"
+            className="w-full border border-[#9C8F86] bg-transparent px-3 py-2 text-[#2B2622] outline-none focus:border-[#B8650A]"
             value={state.noun}
             onChange={(e) => update({ noun: e.target.value })}
             placeholder="el sustantivo..."
@@ -289,7 +289,7 @@ function Phase2({ state, update }: { state: State; update: (s: Partial<State>) =
             Súbelo a condición (la madre)
           </label>
           <input
-            className="w-full border border-[#D9CFC6] bg-transparent px-3 py-2 text-[#2B2622] outline-none focus:border-[#B8650A]"
+            className="w-full border border-[#9C8F86] bg-transparent px-3 py-2 text-[#2B2622] outline-none focus:border-[#B8650A]"
             value={state.mother}
             onChange={(e) => update({ mother: e.target.value })}
             placeholder="la condición madre..."
@@ -314,7 +314,7 @@ function Phase2({ state, update }: { state: State; update: (s: Partial<State>) =
           <label className="text-[10px] uppercase tracking-widest text-[#A89F97] block mb-1">
             La regla del mundo
           </label>
-          <div className="border border-[#D9CFC6] focus-within:border-[#B8650A] flex items-start">
+          <div className="border border-[#9C8F86] focus-within:border-[#B8650A] flex items-start">
             <span className="px-3 py-2 text-[#A89F97] text-sm whitespace-nowrap flex-shrink-0" style={{ fontFamily: "IBM Plex Mono" }}>
               En este mundo, todo
             </span>
@@ -333,8 +333,8 @@ function Phase2({ state, update }: { state: State; update: (s: Partial<State>) =
         disabled={!canProceed}
         className="w-full border py-3 text-xs uppercase tracking-widest transition-colors"
         style={{
-          borderColor: canProceed ? "#B8650A" : "#D9CFC6",
-          color: canProceed ? "#F8EEE4" : "#A89F97",
+          borderColor: canProceed ? "#B8650A" : "#2B2622",
+          color: canProceed ? "#F8EEE4" : "#2B2622",
           background: canProceed ? "#B8650A" : "transparent",
           cursor: canProceed ? "pointer" : "not-allowed",
         }}
@@ -418,8 +418,8 @@ function Phase3({ state, update }: { state: State; update: (s: Partial<State>) =
         disabled={!canProceed}
         className="w-full border py-3 text-xs uppercase tracking-widest transition-colors"
         style={{
-          borderColor: canProceed ? "#B8650A" : "#D9CFC6",
-          color: canProceed ? "#F8EEE4" : "#A89F97",
+          borderColor: canProceed ? "#B8650A" : "#2B2622",
+          color: canProceed ? "#F8EEE4" : "#2B2622",
           background: canProceed ? "#B8650A" : "transparent",
           cursor: canProceed ? "pointer" : "not-allowed",
         }}
@@ -466,7 +466,7 @@ function Phase4({ state, update }: { state: State; update: (s: Partial<State>) =
         </label>
         <p className="text-[10px] text-[#A89F97] mb-1">nómbralo a partir de la regla, no del verbo</p>
         <input
-          className="w-full border border-[#D9CFC6] bg-transparent px-3 py-2 text-[#2B2622] outline-none focus:border-[#B8650A]"
+          className="w-full border border-[#9C8F86] bg-transparent px-3 py-2 text-[#2B2622] outline-none focus:border-[#B8650A]"
           value={state.projectName}
           onChange={(e) => update({ projectName: e.target.value })}
           placeholder="nombre del proyecto..."
@@ -506,7 +506,7 @@ function Phase4({ state, update }: { state: State; update: (s: Partial<State>) =
           <div key={key}>
             <label className="text-[10px] uppercase tracking-widest text-[#A89F97] block mb-1">{label}</label>
             <textarea
-              className="w-full border border-[#D9CFC6] bg-transparent px-3 py-2 text-[#2B2622] outline-none focus:border-[#B8650A] resize-none"
+              className="w-full border border-[#9C8F86] bg-transparent px-3 py-2 text-[#2B2622] outline-none focus:border-[#B8650A] resize-none"
               rows={2}
               value={(state as any)[key]}
               onChange={(e) => update({ [key]: e.target.value })}
@@ -520,8 +520,8 @@ function Phase4({ state, update }: { state: State; update: (s: Partial<State>) =
         disabled={!canProceed}
         className="w-full border py-3 text-xs uppercase tracking-widest transition-colors"
         style={{
-          borderColor: canProceed ? "#B8650A" : "#D9CFC6",
-          color: canProceed ? "#F8EEE4" : "#A89F97",
+          borderColor: canProceed ? "#B8650A" : "#2B2622",
+          color: canProceed ? "#F8EEE4" : "#2B2622",
           background: canProceed ? "#B8650A" : "transparent",
           cursor: canProceed ? "pointer" : "not-allowed",
         }}
