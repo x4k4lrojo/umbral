@@ -34,11 +34,11 @@ Reglas de contenido:
 - scales: 5 restricciones de existencia únicas para objetos de este mundo
 - wildcards: 4 propiedades inesperadas que los objetos de este mundo podrían tener`;
 
-  const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+  // Use local Vite proxy to avoid CORS — proxy injects the Authorization header
+  const response = await fetch("/api/groq/openai/v1/chat/completions", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
       model: "llama-3.3-70b-versatile",

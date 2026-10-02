@@ -40,6 +40,16 @@ react(),
           '**/.figma/**',
 ],
       },
+      proxy: {
+        '/api/groq': {
+          target: 'https://api.groq.com',
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/api\/groq/, ''),
+          headers: {
+            'Authorization': `Bearer ${process.env.VITE_GROQ_API_KEY}`,
+          },
+        },
+      },
     },
     preview: {
       host: process.env.FIGMA_DEV_SERVER_HOST || '0.0.0.0',
