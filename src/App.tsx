@@ -223,6 +223,8 @@ function Welcome({ onStart }: { onStart: () => void }) {
 
 function Phase1({ state, update }: { state: State; update: (s: Partial<State>) => void }) {
   const [input, setInput] = useState("");
+  const fromPrevRound = state.verbs.length === 1 && state.chosenVerb === "";
+
   const add = () => {
     const v = input.trim();
     if (v && !state.verbs.includes(v)) update({ verbs: [...state.verbs, v], chosenVerb: "" });
@@ -237,7 +239,14 @@ function Phase1({ state, update }: { state: State; update: (s: Partial<State>) =
   return (
     <div className="space-y-5">
       <div>
-        <Label>Agrega verbos</Label>
+        {fromPrevRound && (
+        <div className="px-3 py-2.5 mb-1" style={{ border: `1px solid ${BLUE}`, background: "#EBF4F8" }}>
+          <p className="text-[11px] leading-relaxed" style={{ color: BLUE }}>
+            Nueva vuelta. Tu objeto anterior (<em style={{ fontFamily: "Newsreader" }}>{state.verbs[0]}</em>) es el punto de partida — agrégalo como verbo o reemplázalo por uno nuevo.
+          </p>
+        </div>
+      )}
+      <Label>Agrega verbos</Label>
         <div className="flex gap-2">
           <input
             className="flex-1 bg-transparent px-3 py-2.5 outline-none transition-colors"
@@ -414,21 +423,12 @@ function Phase3({ state, update }: { state: State; update: (s: Partial<State>) =
         </div>
       )}
 
-      <div className="flex gap-3">
-        <button className="flex-1 py-3 text-xs uppercase tracking-widest transition-colors"
-          style={{ background: BLUE, color: "#fff", border: `1px solid ${BLUE}`, opacity: state.riverUsed ? 0.35 : 1, cursor: state.riverUsed ? "not-allowed" : "pointer" }}
-          onClick={draw} disabled={state.riverUsed}>
-          {state.river ? "nuevo río" : "saca un río"}
-        </button>
-        {state.river && !state.riverUsed && (
-          <button className="px-5 py-3 text-xs uppercase tracking-widest transition-colors"
-            style={{ border: `1px solid ${FAINT}`, color: FAINT }}
-            onMouseOver={e => { e.currentTarget.style.borderColor = MUTED; e.currentTarget.style.color = MUTED; }}
-            onMouseOut={e => { e.currentTarget.style.borderColor = FAINT; e.currentTarget.style.color = FAINT; }}
-            onClick={draw}>otra vez</button>
-        )}
-      </div>
-      {state.riverUsed && <p className="text-[11px]" style={{ color: MUTED }}>solo puedes volver a sacar una vez</p>}
+      <button className="w-full py-3 text-xs uppercase tracking-widest transition-colors"
+        style={{ background: state.riverUsed ? "transparent" : BLUE, color: state.riverUsed ? FAINT : "#fff", border: `1px solid ${state.riverUsed ? FAINT : BLUE}`, cursor: state.riverUsed ? "not-allowed" : "pointer" }}
+        onClick={draw} disabled={state.riverUsed}>
+        {state.river ? (state.riverUsed ? "ya usaste tu intento extra" : "otro río") : "saca un río"}
+      </button>
+      {state.river && !state.riverUsed && <Hint>puedes pedir otro río una sola vez</Hint>}
 
       <PrimaryBtn label="Construir →" enabled={!!state.river} onClick={() => update({ phase: 3 })} />
     </div>
@@ -477,7 +477,7 @@ function Phase4({ state, update }: { state: State; update: (s: Partial<State>) =
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <FlipCard label="Usuario" value={state.userCard} flipped={state.userFlipped} used={state.userCardUsed}
           onFlip={() => update({ userFlipped: true })}
           onRedraw={() => update({ userCard: pick(users, state.userCard), userCardUsed: true })} />
@@ -522,19 +522,24 @@ const RUBRIC = [
 ];
 
 function Ficha({ state }: { state: State }) {
+  const rows = [
+    { label: "Verbo",    value: state.chosenVerb },
+    { label: "Madre",    value: state.mother },
+    { label: "Regla",    value: `En este mundo, todo ${state.rule}` },
+    { label: "Cruce",    value: `${state.mother} × ${state.river}` },
+    { label: "Proyecto", value: state.projectName },
+    { label: "Objeto",   value: state.objName },
+    ...(state.userCard    ? [{ label: "Usuario",  value: state.userCard }]    : []),
+    ...(state.scaleCard   ? [{ label: "Escala",   value: state.scaleCard }]   : []),
+    ...(state.medioCard   ? [{ label: "Medio",    value: state.medioCard }]   : []),
+    ...(state.wildcardCard? [{ label: "Comodín",  value: state.wildcardCard }]: []),
+  ];
   return (
     <div className="p-5 space-y-3" style={{ border: `1px solid ${INK}`, background: PAPER }}>
       <p className="text-[10px] uppercase tracking-widest pb-2" style={{ color: MUTED, borderBottom: `1px solid ${FAINT}` }}>
         Umbral — ficha de mundo
       </p>
-      {[
-        { label: "Verbo",    value: state.chosenVerb },
-        { label: "Madre",    value: state.mother },
-        { label: "Regla",    value: `En este mundo, todo ${state.rule}` },
-        { label: "Cruce",    value: `${state.mother} × ${state.river}` },
-        { label: "Proyecto", value: state.projectName },
-        { label: "Objeto",   value: state.objName },
-      ].map(({ label, value }) => (
+      {rows.map(({ label, value }) => (
         <div key={label} className="grid gap-2" style={{ gridTemplateColumns: "72px 1fr" }}>
           <span className="text-[10px] uppercase tracking-widest pt-0.5" style={{ color: MUTED }}>{label}</span>
           <span style={{ fontFamily: "Newsreader", fontSize: "0.95rem", color: INK }}>{value}</span>
@@ -620,45 +625,46 @@ function Phase5({ state, update, onRestart }: { state: State; update: (s: Partia
       </div>
 
       {result && (
-        <div className="px-5 py-6 text-center" style={{ border: `2px solid ${result.color}` }}>
-          <p className="text-4xl tracking-widest uppercase mb-2" style={{ fontFamily: "IBM Plex Mono", color: result.color }}>
-            {result.label}
-          </p>
-          <p className="text-sm leading-relaxed mb-4" style={{ fontFamily: "Newsreader", color: MUTED }}>{result.note}</p>
-          {result.label === "Decoración" && (
-            <div className="text-left mt-3 space-y-2 pt-3" style={{ borderTop: `1px solid ${FAINT}` }}>
-              <p className="text-[10px] uppercase tracking-widest mb-2" style={{ color: RED }}>para diagnosticar</p>
-              <p className="text-xs leading-relaxed" style={{ color: MUTED }}>
-                · ¿La madre todavía se puede fotografiar? Sube otro peldaño.<br/>
-                · ¿El nombre del proyecto viene del verbo, no de la regla? Renómbralo.<br/>
-                · ¿El objeto funcionaría en otro mundo? La regla no entró en su forma.
-              </p>
-            </div>
-          )}
-        </div>
+        <>
+          <div className="px-5 py-6 text-center" style={{ border: `2px solid ${result.color}` }}>
+            <p className="text-4xl tracking-widest uppercase mb-2" style={{ fontFamily: "IBM Plex Mono", color: result.color }}>
+              {result.label}
+            </p>
+            <p className="text-sm leading-relaxed mb-4" style={{ fontFamily: "Newsreader", color: MUTED }}>{result.note}</p>
+            {result.label === "Decoración" && (
+              <div className="text-left mt-3 space-y-2 pt-3" style={{ borderTop: `1px solid ${FAINT}` }}>
+                <p className="text-[10px] uppercase tracking-widest mb-2" style={{ color: RED }}>para diagnosticar</p>
+                <p className="text-xs leading-relaxed" style={{ color: MUTED }}>
+                  · ¿La madre todavía se puede fotografiar? Sube otro peldaño.<br/>
+                  · ¿El nombre del proyecto viene del verbo, no de la regla? Renómbralo.<br/>
+                  · ¿El objeto funcionaría en otro mundo? La regla no entró en su forma.
+                </p>
+              </div>
+            )}
+          </div>
+
+          <div className="pt-4" style={{ borderTop: `1px solid ${FAINT}` }}>
+            <p className="text-sm leading-relaxed" style={{ fontFamily: "Newsreader", color: MUTED }}>
+              Tu objeto terminado no es el final, es lo siguiente que vas a leer. Todo mundo crece así: cada objeto se vuelve la semilla de la próxima vuelta.
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-3">
+            <button className="w-full py-3.5 text-xs uppercase tracking-widest transition-colors"
+              style={{ border: `1px solid ${GRID}`, color: INK }}
+              onMouseOver={e => e.currentTarget.style.borderColor = INK}
+              onMouseOut={e => e.currentTarget.style.borderColor = GRID}
+              onClick={download}>
+              Descargar ficha
+            </button>
+            <button className="w-full py-3.5 text-xs uppercase tracking-widest transition-colors"
+              style={{ border: `1px solid ${RED}`, color: RED }}
+              onClick={() => onRestart(state.objName)}>
+              ← Nueva vuelta desde este objeto
+            </button>
+          </div>
+        </>
       )}
-
-      {/* Cierre — siempre visible */}
-      <div className="pt-4" style={{ borderTop: `1px solid ${FAINT}` }}>
-        <p className="text-sm leading-relaxed" style={{ fontFamily: "Newsreader", color: MUTED }}>
-          Tu objeto terminado no es el final, es lo siguiente que vas a leer. Todo mundo crece así: cada objeto se vuelve la semilla de la próxima vuelta.
-        </p>
-      </div>
-
-      <div className="flex flex-col gap-3">
-        <button className="w-full py-3.5 text-xs uppercase tracking-widest transition-colors"
-          style={{ border: `1px solid ${GRID}`, color: INK }}
-          onMouseOver={e => e.currentTarget.style.borderColor = INK}
-          onMouseOut={e => e.currentTarget.style.borderColor = GRID}
-          onClick={download}>
-          Descargar ficha
-        </button>
-        <button className="w-full py-3.5 text-xs uppercase tracking-widest transition-colors"
-          style={{ border: `1px solid ${RED}`, color: RED }}
-          onClick={() => onRestart(state.objName)}>
-          ← Nueva vuelta
-        </button>
-      </div>
     </div>
   );
 }
