@@ -17,8 +17,8 @@
 }
 
 body {
-  background-color: #F8EEE4;
-  color: #2B2622;
+  background-color: #1A1612;
+  color: #EDE5DC;
   font-family: 'IBM Plex Mono', monospace;
   margin: 0;
   padding: 0;
@@ -30,8 +30,8 @@ body {
   pointer-events: none;
   z-index: 0;
   background-image:
-    linear-gradient(to right, #D9CFC6 1px, transparent 1px),
-    linear-gradient(to bottom, #D9CFC6 1px, transparent 1px);
+    linear-gradient(to right, #2E2820 1px, transparent 1px),
+    linear-gradient(to bottom, #2E2820 1px, transparent 1px);
   background-size: 22px 22px;
 }
 
@@ -43,7 +43,7 @@ input, textarea {
 input::placeholder, textarea::placeholder {
   font-family: 'IBM Plex Mono', monospace;
   font-size: 0.8rem;
-  color: #A89F97;
+  color: #5A5048;
 }
 
 .card-flip {

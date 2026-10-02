@@ -107,14 +107,14 @@ function saveState(s: State) {
 
 function ProgressBar({ phase }: { phase: Phase }) {
   return (
-    <div className="flex items-center gap-0 border-b border-[#D9CFC6]">
+    <div className="flex items-center gap-0 border-b border-[#2E2820]">
       {PHASES.map((label, i) => {
         const active = i === phase;
         const done = i < phase;
         return (
           <div
             key={label}
-            className="flex-1 flex flex-col items-center py-3 border-r border-[#D9CFC6] last:border-r-0"
+            className="flex-1 flex flex-col items-center py-3 border-r border-[#2E2820] last:border-r-0"
             style={{
               borderBottom: active ? "2px solid #B8650A" : "2px solid transparent",
               marginBottom: -1,
@@ -123,7 +123,7 @@ function ProgressBar({ phase }: { phase: Phase }) {
             <span
               className="text-[10px] tracking-widest uppercase"
               style={{
-                color: active ? "#B8650A" : done ? "#2B2622" : "#A89F97",
+                color: active ? "#B8650A" : done ? "#EDE5DC" : "#6B6058",
                 fontWeight: active ? 600 : 400,
               }}
             >
@@ -154,20 +154,20 @@ function FlipCard({
       <div className={`card-inner ${flipped ? "flipped" : ""}`}>
         {/* Front */}
         <div
-          className="card-face border border-[#D9CFC6] cursor-pointer flex flex-col items-center justify-center bg-[#F8EEE4] hover:bg-[#F0DFC4] transition-colors"
+          className="card-face border border-[#2E2820] cursor-pointer flex flex-col items-center justify-center bg-[#1A1612] hover:bg-[#2A2218] transition-colors"
           onClick={!flipped ? onFlip : undefined}
         >
-          <span className="text-[10px] tracking-widest uppercase text-[#A89F97] mb-1">{label}</span>
-          <span className="text-lg" style={{ color: "#D9CFC6" }}>◆</span>
-          <span className="text-[10px] text-[#A89F97] mt-1">voltear</span>
+          <span className="text-[10px] tracking-widest uppercase text-[#6B6058] mb-1">{label}</span>
+          <span className="text-lg" style={{ color: "#4A4038" }}>◆</span>
+          <span className="text-[10px] text-[#6B6058] mt-1">voltear</span>
         </div>
         {/* Back */}
         <div
           className="card-face card-back border border-[#B8650A] flex flex-col items-center justify-center px-3 text-center"
-          style={{ background: "#FFF8F0" }}
+          style={{ background: "#211D19" }}
         >
           <span className="text-[10px] tracking-widest uppercase mb-1" style={{ color: "#B8650A" }}>{label}</span>
-          <span className="text-sm font-semibold" style={{ fontFamily: "IBM Plex Mono", color: "#2B2622" }}>
+          <span className="text-sm font-semibold" style={{ fontFamily: "IBM Plex Mono", color: "#EDE5DC" }}>
             {value}
           </span>
         </div>
@@ -193,21 +193,21 @@ function Phase1({ state, update }: { state: State; update: (s: Partial<State>) =
 
   return (
     <div className="space-y-6">
-      <p className="text-xs tracking-wide uppercase text-[#A89F97]">Fase 01 / Leer</p>
+      <p className="text-xs tracking-wide uppercase text-[#6B6058]">Fase 01 / Leer</p>
       <p className="text-base leading-relaxed" style={{ fontFamily: "Newsreader", fontSize: "1.1rem" }}>
         Lee el mundo: ¿qué hiciste hoy con las manos? ¿qué hace tu entorno?
       </p>
 
       <div className="flex gap-2">
         <input
-          className="flex-1 border border-[#9C8F86] bg-transparent px-3 py-2 text-[#2B2622] outline-none focus:border-[#B8650A]"
+          className="flex-1 border border-[#4A4038] bg-transparent px-3 py-2 text-[#EDE5DC] outline-none focus:border-[#B8650A]"
           placeholder="escribe un verbo..."
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && addVerb()}
         />
         <button
-          className="border border-[#2B2622] px-4 py-2 text-xs uppercase tracking-widest hover:bg-[#2B2622] hover:text-[#F8EEE4] transition-colors"
+          className="border border-[#EDE5DC] px-4 py-2 text-xs uppercase tracking-widest hover:bg-[#EDE5DC] hover:text-[#1A1612] transition-colors"
           onClick={addVerb}
         >
           Agregar
@@ -215,17 +215,17 @@ function Phase1({ state, update }: { state: State; update: (s: Partial<State>) =
       </div>
 
       {state.verbs.length > 0 && (
-        <div className="border border-[#D9CFC6]">
-          <p className="text-[10px] tracking-widest uppercase text-[#A89F97] px-3 pt-2 pb-1">
+        <div className="border border-[#2E2820]">
+          <p className="text-[10px] tracking-widest uppercase text-[#6B6058] px-3 pt-2 pb-1">
             elige uno —
           </p>
           {state.verbs.map((v) => (
             <button
               key={v}
-              className="w-full text-left px-3 py-2 border-t border-[#D9CFC6] text-sm transition-colors"
+              className="w-full text-left px-3 py-2 border-t border-[#2E2820] text-sm transition-colors"
               style={{
                 background: state.chosenVerb === v ? "#B8650A" : "transparent",
-                color: state.chosenVerb === v ? "#F8EEE4" : "#2B2622",
+                color: state.chosenVerb === v ? "#1A1612" : "#EDE5DC",
                 fontFamily: "IBM Plex Mono",
               }}
               onClick={() => update({ chosenVerb: v })}
@@ -237,15 +237,15 @@ function Phase1({ state, update }: { state: State; update: (s: Partial<State>) =
       )}
 
       {state.verbs.length < 3 && (
-        <p className="text-[11px] text-[#A89F97]">mínimo 3 verbos antes de elegir</p>
+        <p className="text-[11px] text-[#6B6058]">mínimo 3 verbos antes de elegir</p>
       )}
 
       <button
         disabled={!canProceed}
         className="w-full border py-3 text-xs uppercase tracking-widest transition-colors"
         style={{
-          borderColor: canProceed ? "#B8650A" : "#2B2622",
-          color: canProceed ? "#F8EEE4" : "#2B2622",
+          borderColor: canProceed ? "#B8650A" : "#EDE5DC",
+          color: canProceed ? "#1A1612" : "#EDE5DC",
           background: canProceed ? "#B8650A" : "transparent",
           cursor: canProceed ? "pointer" : "not-allowed",
         }}
@@ -264,7 +264,7 @@ function Phase2({ state, update }: { state: State; update: (s: Partial<State>) =
 
   return (
     <div className="space-y-5">
-      <p className="text-xs tracking-wide uppercase text-[#A89F97]">Fase 02 / Desenterrar</p>
+      <p className="text-xs tracking-wide uppercase text-[#6B6058]">Fase 02 / Desenterrar</p>
 
       <div className="border border-[#B8650A] px-3 py-2 inline-block">
         <span className="text-[10px] uppercase tracking-widest text-[#B8650A]">verbo elegido</span>
@@ -273,11 +273,11 @@ function Phase2({ state, update }: { state: State; update: (s: Partial<State>) =
 
       <div className="space-y-4">
         <div>
-          <label className="text-[10px] uppercase tracking-widest text-[#A89F97] block mb-1">
+          <label className="text-[10px] uppercase tracking-widest text-[#6B6058] block mb-1">
             Conviértelo en sustantivo
           </label>
           <input
-            className="w-full border border-[#9C8F86] bg-transparent px-3 py-2 text-[#2B2622] outline-none focus:border-[#B8650A]"
+            className="w-full border border-[#4A4038] bg-transparent px-3 py-2 text-[#EDE5DC] outline-none focus:border-[#B8650A]"
             value={state.noun}
             onChange={(e) => update({ noun: e.target.value })}
             placeholder="el sustantivo..."
@@ -285,11 +285,11 @@ function Phase2({ state, update }: { state: State; update: (s: Partial<State>) =
         </div>
 
         <div>
-          <label className="text-[10px] uppercase tracking-widest text-[#A89F97] block mb-1">
+          <label className="text-[10px] uppercase tracking-widest text-[#6B6058] block mb-1">
             Súbelo a condición (la madre)
           </label>
           <input
-            className="w-full border border-[#9C8F86] bg-transparent px-3 py-2 text-[#2B2622] outline-none focus:border-[#B8650A]"
+            className="w-full border border-[#4A4038] bg-transparent px-3 py-2 text-[#EDE5DC] outline-none focus:border-[#B8650A]"
             value={state.mother}
             onChange={(e) => update({ mother: e.target.value })}
             placeholder="la condición madre..."
@@ -300,26 +300,26 @@ function Phase2({ state, update }: { state: State; update: (s: Partial<State>) =
           <div
             className="w-4 h-4 border flex items-center justify-center flex-shrink-0 transition-colors"
             style={{
-              borderColor: state.cantPhoto ? "#B8650A" : "#D9CFC6",
+              borderColor: state.cantPhoto ? "#B8650A" : "#2E2820",
               background: state.cantPhoto ? "#B8650A" : "transparent",
             }}
             onClick={() => update({ cantPhoto: !state.cantPhoto })}
           >
-            {state.cantPhoto && <span className="text-[#F8EEE4] text-xs leading-none">✓</span>}
+            {state.cantPhoto && <span className="text-[#1A1612] text-xs leading-none">✓</span>}
           </div>
-          <span className="text-xs text-[#2B2622]">No se puede fotografiar directamente</span>
+          <span className="text-xs text-[#EDE5DC]">No se puede fotografiar directamente</span>
         </label>
 
         <div>
-          <label className="text-[10px] uppercase tracking-widest text-[#A89F97] block mb-1">
+          <label className="text-[10px] uppercase tracking-widest text-[#6B6058] block mb-1">
             La regla del mundo
           </label>
-          <div className="border border-[#9C8F86] focus-within:border-[#B8650A] flex items-start">
-            <span className="px-3 py-2 text-[#A89F97] text-sm whitespace-nowrap flex-shrink-0" style={{ fontFamily: "IBM Plex Mono" }}>
+          <div className="border border-[#4A4038] focus-within:border-[#B8650A] flex items-start">
+            <span className="px-3 py-2 text-[#6B6058] text-sm whitespace-nowrap flex-shrink-0" style={{ fontFamily: "IBM Plex Mono" }}>
               En este mundo, todo
             </span>
             <textarea
-              className="flex-1 bg-transparent px-2 py-2 text-[#2B2622] outline-none resize-none"
+              className="flex-1 bg-transparent px-2 py-2 text-[#EDE5DC] outline-none resize-none"
               rows={2}
               value={state.rule}
               onChange={(e) => update({ rule: e.target.value })}
@@ -333,8 +333,8 @@ function Phase2({ state, update }: { state: State; update: (s: Partial<State>) =
         disabled={!canProceed}
         className="w-full border py-3 text-xs uppercase tracking-widest transition-colors"
         style={{
-          borderColor: canProceed ? "#B8650A" : "#2B2622",
-          color: canProceed ? "#F8EEE4" : "#2B2622",
+          borderColor: canProceed ? "#B8650A" : "#EDE5DC",
+          color: canProceed ? "#1A1612" : "#EDE5DC",
           background: canProceed ? "#B8650A" : "transparent",
           cursor: canProceed ? "pointer" : "not-allowed",
         }}
@@ -359,29 +359,29 @@ function Phase3({ state, update }: { state: State; update: (s: Partial<State>) =
 
   return (
     <div className="space-y-6">
-      <p className="text-xs tracking-wide uppercase text-[#A89F97]">Fase 03 / Saltar</p>
+      <p className="text-xs tracking-wide uppercase text-[#6B6058]">Fase 03 / Saltar</p>
 
       <div className="grid grid-cols-2 gap-3">
         <div className="border border-[#B8650A] px-3 py-2">
           <span className="text-[10px] uppercase tracking-widest text-[#B8650A]">madre</span>
           <p className="text-sm mt-0.5" style={{ fontFamily: "Newsreader" }}>{state.mother}</p>
         </div>
-        <div className="border border-[#D9CFC6] px-3 py-2 flex flex-col items-center justify-center">
-          <span className="text-[10px] uppercase tracking-widest text-[#A89F97]">río</span>
+        <div className="border border-[#2E2820] px-3 py-2 flex flex-col items-center justify-center">
+          <span className="text-[10px] uppercase tracking-widest text-[#6B6058]">río</span>
           {state.river ? (
             <p className="text-sm mt-0.5" style={{ fontFamily: "Newsreader", color: "#B8650A" }}>{state.river}</p>
           ) : (
-            <span className="text-[#D9CFC6] text-lg">?</span>
+            <span className="text-[#2E2820] text-lg">?</span>
           )}
         </div>
       </div>
 
       {state.river && (
-        <div className="border border-[#2B2622] px-4 py-3 text-center">
-          <span className="text-[10px] uppercase tracking-widest text-[#A89F97] block mb-1">el cruce</span>
+        <div className="border border-[#EDE5DC] px-4 py-3 text-center">
+          <span className="text-[10px] uppercase tracking-widest text-[#6B6058] block mb-1">el cruce</span>
           <p className="text-base" style={{ fontFamily: "Newsreader", fontSize: "1.15rem" }}>
             <span style={{ color: "#B8650A" }}>{state.mother}</span>
-            <span className="mx-2 text-[#D9CFC6]">×</span>
+            <span className="mx-2 text-[#2E2820]">×</span>
             <span style={{ color: "#B8650A" }}>{state.river}</span>
           </p>
         </div>
@@ -392,7 +392,7 @@ function Phase3({ state, update }: { state: State; update: (s: Partial<State>) =
           className="flex-1 border py-3 text-xs uppercase tracking-widest transition-colors"
           style={{
             borderColor: "#B8650A",
-            color: "#F8EEE4",
+            color: "#1A1612",
             background: "#B8650A",
           }}
           onClick={drawRiver}
@@ -402,7 +402,7 @@ function Phase3({ state, update }: { state: State; update: (s: Partial<State>) =
         </button>
         {state.river && !state.riverUsed && (
           <button
-            className="border border-[#D9CFC6] px-4 py-3 text-xs uppercase tracking-widest text-[#A89F97] hover:border-[#2B2622] hover:text-[#2B2622] transition-colors"
+            className="border border-[#2E2820] px-4 py-3 text-xs uppercase tracking-widest text-[#6B6058] hover:border-[#EDE5DC] hover:text-[#EDE5DC] transition-colors"
             onClick={drawRiver}
           >
             Otra vez
@@ -411,15 +411,15 @@ function Phase3({ state, update }: { state: State; update: (s: Partial<State>) =
       </div>
 
       {state.riverUsed && (
-        <p className="text-[11px] text-[#A89F97]">solo puedes volver a sacar una vez</p>
+        <p className="text-[11px] text-[#6B6058]">solo puedes volver a sacar una vez</p>
       )}
 
       <button
         disabled={!canProceed}
         className="w-full border py-3 text-xs uppercase tracking-widest transition-colors"
         style={{
-          borderColor: canProceed ? "#B8650A" : "#2B2622",
-          color: canProceed ? "#F8EEE4" : "#2B2622",
+          borderColor: canProceed ? "#B8650A" : "#EDE5DC",
+          color: canProceed ? "#1A1612" : "#EDE5DC",
           background: canProceed ? "#B8650A" : "transparent",
           cursor: canProceed ? "pointer" : "not-allowed",
         }}
@@ -458,15 +458,15 @@ function Phase4({ state, update }: { state: State; update: (s: Partial<State>) =
 
   return (
     <div className="space-y-5">
-      <p className="text-xs tracking-wide uppercase text-[#A89F97]">Fase 04 / Construir</p>
+      <p className="text-xs tracking-wide uppercase text-[#6B6058]">Fase 04 / Construir</p>
 
       <div>
-        <label className="text-[10px] uppercase tracking-widest text-[#A89F97] block mb-1">
+        <label className="text-[10px] uppercase tracking-widest text-[#6B6058] block mb-1">
           Nombre del proyecto musical
         </label>
-        <p className="text-[10px] text-[#A89F97] mb-1">nómbralo a partir de la regla, no del verbo</p>
+        <p className="text-[10px] text-[#6B6058] mb-1">nómbralo a partir de la regla, no del verbo</p>
         <input
-          className="w-full border border-[#9C8F86] bg-transparent px-3 py-2 text-[#2B2622] outline-none focus:border-[#B8650A]"
+          className="w-full border border-[#4A4038] bg-transparent px-3 py-2 text-[#EDE5DC] outline-none focus:border-[#B8650A]"
           value={state.projectName}
           onChange={(e) => update({ projectName: e.target.value })}
           placeholder="nombre del proyecto..."
@@ -494,8 +494,8 @@ function Phase4({ state, update }: { state: State; update: (s: Partial<State>) =
         />
       </div>
 
-      <div className="border-t border-[#D9CFC6] pt-4 space-y-4">
-        <p className="text-[10px] uppercase tracking-widest text-[#A89F97]">Ficha del objeto</p>
+      <div className="border-t border-[#2E2820] pt-4 space-y-4">
+        <p className="text-[10px] uppercase tracking-widest text-[#6B6058]">Ficha del objeto</p>
 
         {[
           { label: "Nombre del objeto", key: "objName", ph: "¿cómo se llama?" },
@@ -504,9 +504,9 @@ function Phase4({ state, update }: { state: State; update: (s: Partial<State>) =
           { label: "Tres piezas que lo componen", key: "objPieces", ph: "lista tres piezas..." },
         ].map(({ label, key, ph }) => (
           <div key={key}>
-            <label className="text-[10px] uppercase tracking-widest text-[#A89F97] block mb-1">{label}</label>
+            <label className="text-[10px] uppercase tracking-widest text-[#6B6058] block mb-1">{label}</label>
             <textarea
-              className="w-full border border-[#9C8F86] bg-transparent px-3 py-2 text-[#2B2622] outline-none focus:border-[#B8650A] resize-none"
+              className="w-full border border-[#4A4038] bg-transparent px-3 py-2 text-[#EDE5DC] outline-none focus:border-[#B8650A] resize-none"
               rows={2}
               value={(state as any)[key]}
               onChange={(e) => update({ [key]: e.target.value })}
@@ -520,8 +520,8 @@ function Phase4({ state, update }: { state: State; update: (s: Partial<State>) =
         disabled={!canProceed}
         className="w-full border py-3 text-xs uppercase tracking-widest transition-colors"
         style={{
-          borderColor: canProceed ? "#B8650A" : "#2B2622",
-          color: canProceed ? "#F8EEE4" : "#2B2622",
+          borderColor: canProceed ? "#B8650A" : "#EDE5DC",
+          color: canProceed ? "#1A1612" : "#EDE5DC",
           background: canProceed ? "#B8650A" : "transparent",
           cursor: canProceed ? "pointer" : "not-allowed",
         }}
@@ -578,7 +578,7 @@ function Phase5({
     if (!el) return;
     try {
       const { default: html2canvas } = await import("html2canvas");
-      const canvas = await html2canvas(el, { scale: 2, backgroundColor: "#F8EEE4" });
+      const canvas = await html2canvas(el, { scale: 2, backgroundColor: "#1A1612" });
       const link = document.createElement("a");
       link.download = `umbral-${state.projectName || "ficha"}.png`;
       link.href = canvas.toDataURL("image/png");
@@ -590,11 +590,11 @@ function Phase5({
 
   return (
     <div className="space-y-6">
-      <p className="text-xs tracking-wide uppercase text-[#A89F97]">Fase 05 / Probar</p>
+      <p className="text-xs tracking-wide uppercase text-[#6B6058]">Fase 05 / Probar</p>
 
       {/* Ficha */}
-      <div ref={cardRef} className="border border-[#2B2622] p-5 space-y-3 bg-[#F8EEE4]">
-        <p className="text-[10px] uppercase tracking-widest text-[#A89F97] border-b border-[#D9CFC6] pb-2 mb-3">
+      <div ref={cardRef} className="border border-[#EDE5DC] p-5 space-y-3 bg-[#1A1612]">
+        <p className="text-[10px] uppercase tracking-widest text-[#6B6058] border-b border-[#2E2820] pb-2 mb-3">
           Umbral — ficha de mundo
         </p>
         {[
@@ -606,17 +606,17 @@ function Phase5({
           { label: "Objeto", value: state.objName },
         ].map(({ label, value }) => (
           <div key={label} className="grid grid-cols-[80px_1fr] gap-2">
-            <span className="text-[10px] uppercase tracking-widest text-[#A89F97] pt-0.5">{label}</span>
-            <span style={{ fontFamily: "Newsreader", fontSize: "0.95rem", color: "#2B2622" }}>{value}</span>
+            <span className="text-[10px] uppercase tracking-widest text-[#6B6058] pt-0.5">{label}</span>
+            <span style={{ fontFamily: "Newsreader", fontSize: "0.95rem", color: "#EDE5DC" }}>{value}</span>
           </div>
         ))}
       </div>
 
       {/* Rúbrica */}
       <div className="space-y-3">
-        <p className="text-[10px] uppercase tracking-widest text-[#A89F97]">Rúbrica</p>
+        <p className="text-[10px] uppercase tracking-widest text-[#6B6058]">Rúbrica</p>
         {RUBRIC.map((q, i) => (
-          <div key={i} className="border border-[#D9CFC6] p-3">
+          <div key={i} className="border border-[#2E2820] p-3">
             <p className="text-sm mb-2" style={{ fontFamily: "Newsreader" }}>{q}</p>
             <div className="flex gap-3">
               {[true, false].map((val) => {
@@ -626,9 +626,9 @@ function Phase5({
                     key={String(val)}
                     className="px-4 py-1.5 text-xs uppercase tracking-widest border transition-colors"
                     style={{
-                      borderColor: active ? "#B8650A" : "#D9CFC6",
+                      borderColor: active ? "#B8650A" : "#2E2820",
                       background: active ? "#B8650A" : "transparent",
-                      color: active ? "#F8EEE4" : "#2B2622",
+                      color: active ? "#1A1612" : "#EDE5DC",
                     }}
                     onClick={() => setAnswer(i, val)}
                   >
@@ -644,13 +644,13 @@ function Phase5({
       {result && (
         <div
           className="border-2 px-4 py-4 text-center"
-          style={{ borderColor: result.label === "Salto" ? "#B8650A" : "#2B2622" }}
+          style={{ borderColor: result.label === "Salto" ? "#B8650A" : "#EDE5DC" }}
         >
           <p
             className="text-2xl tracking-widest uppercase mb-1"
             style={{
               fontFamily: "IBM Plex Mono",
-              color: result.label === "Salto" ? "#B8650A" : "#2B2622",
+              color: result.label === "Salto" ? "#B8650A" : "#EDE5DC",
             }}
           >
             {result.label}
@@ -661,7 +661,7 @@ function Phase5({
 
       <div className="flex flex-col gap-3">
         <button
-          className="w-full border border-[#2B2622] py-3 text-xs uppercase tracking-widest hover:bg-[#2B2622] hover:text-[#F8EEE4] transition-colors"
+          className="w-full border border-[#EDE5DC] py-3 text-xs uppercase tracking-widest hover:bg-[#EDE5DC] hover:text-[#1A1612] transition-colors"
           onClick={downloadCard}
         >
           Descargar ficha como imagen
@@ -718,15 +718,15 @@ export default function App() {
       {/* App shell */}
       <div className="relative z-10 min-h-screen flex flex-col">
         {/* Header */}
-        <div className="border-b border-[#D9CFC6] bg-[#F8EEE4]">
+        <div className="border-b border-[#2E2820] bg-[#1A1612]">
           <div className="max-w-lg mx-auto px-4 py-3 flex items-baseline gap-3">
             <h1
               className="text-sm tracking-[0.2em] uppercase"
-              style={{ fontFamily: "IBM Plex Mono", color: "#2B2622" }}
+              style={{ fontFamily: "IBM Plex Mono", color: "#EDE5DC" }}
             >
               Umbral
             </h1>
-            <span className="text-[10px] text-[#A89F97] tracking-widest">construcción de mundos</span>
+            <span className="text-[10px] text-[#6B6058] tracking-widest">construcción de mundos</span>
           </div>
           <ProgressBar phase={state.phase} />
         </div>
