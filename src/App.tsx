@@ -289,17 +289,24 @@ function Phase1({ state, update }: { state: State; update: (s: Partial<State>) =
 
 function Phase2({ state, update }: { state: State; update: (s: Partial<State>) => void }) {
   const [generating, setGenerating] = useState(false);
+  const [groqError, setGroqError] = useState<string | null>(null);
   const tooConcreteBlock = !!(state.mother && !state.cantPhoto);
   const canProceed = !!(state.noun && state.mother && state.rule && state.cantPhoto);
 
   const handleAdvance = async () => {
     setGenerating(true);
+    setGroqError(null);
     try {
       const decks = await generateDecks(state.chosenVerb, state.noun, state.mother, state.rule);
       update({ phase: 2, generatedDecks: decks });
-    } catch {
-      // Fall back to static decks silently
-      update({ phase: 2 });
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setGroqError(msg);
+      // Fall back to static decks after showing error briefly
+      setTimeout(() => {
+        update({ phase: 2 });
+        setGroqError(null);
+      }, 3000);
     } finally {
       setGenerating(false);
     }
@@ -355,6 +362,11 @@ function Phase2({ state, update }: { state: State; update: (s: Partial<State>) =
         <Hint>ej. "es la versión de prueba de otra cosa que nunca llega"</Hint>
       </div>
 
+      {groqError && (
+        <p className="text-[11px] px-3 py-2 leading-relaxed" style={{ color: RED, border: `1px solid ${RED}` }}>
+          Error Groq: {groqError}
+        </p>
+      )}
       <PrimaryBtn
         label={generating ? "Generando tu mundo..." : "Saltar →"}
         enabled={canProceed && !generating}
