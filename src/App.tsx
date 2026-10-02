@@ -109,16 +109,19 @@ function ProgressBar({ phase }: { phase: Phase }) {
         return (
           <div
             key={label}
-            className="flex-1 flex flex-col items-center py-3"
+            className="flex-1 flex flex-col items-center py-3 gap-0.5"
             style={{
               borderRight: i < PHASES.length - 1 ? "1px solid #3D3530" : "none",
               borderBottom: active ? "2px solid #B8650A" : "2px solid transparent",
             }}
           >
+            {done && (
+              <span className="text-[9px]" style={{ color: "#B8650A" }}>✓</span>
+            )}
             <span
               className="text-[10px] tracking-widest uppercase"
               style={{
-                color: active ? "#B8650A" : done ? "#EDE5DC" : "#4A4038",
+                color: active ? "#B8650A" : done ? "#6B6058" : "#3D3530",
                 fontWeight: active ? 600 : 400,
               }}
             >
@@ -235,6 +238,16 @@ function FadePhase({ phase, children }: { phase: Phase; children: React.ReactNod
   );
 }
 
+// ─── Hint ────────────────────────────────────────────────────────────────────
+
+function Hint({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="text-[11px] mt-1.5" style={{ color: "#4A4038", fontFamily: "IBM Plex Mono" }}>
+      {children}
+    </p>
+  );
+}
+
 // ─── Phase 1: LEER ───────────────────────────────────────────────────────────
 
 function Phase1({ state, update }: { state: State; update: (s: Partial<State>) => void }) {
@@ -257,20 +270,23 @@ function Phase1({ state, update }: { state: State; update: (s: Partial<State>) =
       </PhaseHeading>
 
       <div className="space-y-5">
-        <div className="flex gap-2">
-          <input
-            className="flex-1 border border-[#4A4038] bg-transparent px-3 py-2.5 text-[#EDE5DC] outline-none focus:border-[#B8650A]"
-            placeholder="escribe un verbo..."
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && addVerb()}
-          />
-          <button
-            className="border border-[#4A4038] px-4 py-2 text-xs uppercase tracking-widest text-[#EDE5DC] hover:border-[#EDE5DC] transition-colors"
-            onClick={addVerb}
-          >
-            +
-          </button>
+        <div>
+          <div className="flex gap-2">
+            <input
+              className="flex-1 border border-[#4A4038] bg-transparent px-3 py-2.5 text-[#EDE5DC] outline-none focus:border-[#B8650A]"
+              placeholder="escribe un verbo..."
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && addVerb()}
+            />
+            <button
+              className="border border-[#4A4038] px-4 py-2 text-xs uppercase tracking-widest text-[#EDE5DC] hover:border-[#EDE5DC] transition-colors"
+              onClick={addVerb}
+            >
+              +
+            </button>
+          </div>
+          <Hint>ej. doblar, esperar, reparar, circular, almacenar, frotar</Hint>
         </div>
 
         {state.verbs.length > 0 && (
@@ -311,7 +327,8 @@ function Phase1({ state, update }: { state: State; update: (s: Partial<State>) =
 // ─── Phase 2: DESENTERRAR ────────────────────────────────────────────────────
 
 function Phase2({ state, update }: { state: State; update: (s: Partial<State>) => void }) {
-  const canProceed = !!(state.noun && state.mother && state.rule);
+  const tooConcreteBlock = state.mother && !state.cantPhoto;
+  const canProceed = !!(state.noun && state.mother && state.rule && state.cantPhoto);
 
   return (
     <div>
@@ -330,6 +347,7 @@ function Phase2({ state, update }: { state: State; update: (s: Partial<State>) =
             onChange={(e) => update({ noun: e.target.value })}
             placeholder="el sustantivo..."
           />
+          <Hint>ej. doblar → doblez</Hint>
         </div>
 
         <div>
@@ -342,44 +360,64 @@ function Phase2({ state, update }: { state: State; update: (s: Partial<State>) =
             onChange={(e) => update({ mother: e.target.value })}
             placeholder="la condición madre..."
           />
+          <Hint>ej. doblez → pliegue. Debe sonar a ley, no a acción.</Hint>
         </div>
 
-        <label className="flex items-center gap-3 cursor-pointer select-none">
-          <div
-            className="w-4 h-4 border flex items-center justify-center flex-shrink-0 transition-colors"
-            style={{
-              borderColor: state.cantPhoto ? "#B8650A" : "#4A4038",
-              background: state.cantPhoto ? "#B8650A" : "transparent",
-            }}
-            onClick={() => update({ cantPhoto: !state.cantPhoto })}
-          >
-            {state.cantPhoto && <span className="text-[#1A1612] text-xs leading-none">✓</span>}
-          </div>
-          <span className="text-xs" style={{ color: "#EDE5DC" }}>No se puede fotografiar directamente</span>
-        </label>
+        <div>
+          <label className="text-[10px] uppercase tracking-widest block mb-2" style={{ color: "#4A4038" }}>
+            ¿No se puede fotografiar directamente?
+          </label>
+          <label className="flex items-start gap-3 cursor-pointer select-none">
+            <div
+              className="w-4 h-4 border flex items-center justify-center flex-shrink-0 mt-0.5 transition-colors"
+              style={{
+                borderColor: state.cantPhoto ? "#B8650A" : "#4A4038",
+                background: state.cantPhoto ? "#B8650A" : "transparent",
+              }}
+              onClick={() => update({ cantPhoto: !state.cantPhoto })}
+            >
+              {state.cantPhoto && <span className="text-[#1A1612] text-xs leading-none">✓</span>}
+            </div>
+            <span className="text-sm leading-snug" style={{ color: "#EDE5DC", fontFamily: "Newsreader" }}>
+              La condición existe pero no tiene imagen directa: no es un objeto ni una escena.
+            </span>
+          </label>
+          {tooConcreteBlock && (
+            <p className="text-xs mt-2 px-3 py-2" style={{ color: "#B8650A", border: "1px solid #B8650A" }}>
+              Todavía es muy concreto: sube un peldaño más.
+            </p>
+          )}
+          <Hint>ej. "pliegue" no tiene foto; "papel doblado" sí. Eso es demasiado concreto.</Hint>
+        </div>
 
         <div>
           <label className="text-[10px] uppercase tracking-widest block mb-2" style={{ color: "#4A4038" }}>
             La regla del mundo
           </label>
           <div
-            className="flex items-start focus-within:border-[#B8650A] transition-colors"
             style={{ border: "1px solid #4A4038" }}
+            className="focus-within:outline focus-within:outline-1 focus-within:outline-[#B8650A]"
           >
-            <span
-              className="px-3 py-2.5 text-sm whitespace-nowrap flex-shrink-0"
-              style={{ fontFamily: "IBM Plex Mono", color: "#4A4038", borderRight: "1px solid #3D3530" }}
+            <div
+              className="px-3 py-2 text-xs"
+              style={{
+                fontFamily: "IBM Plex Mono",
+                color: "#6B6058",
+                borderBottom: "1px solid #3D3530",
+                userSelect: "none",
+              }}
             >
-              En este mundo, todo
-            </span>
+              En este mundo, todo —
+            </div>
             <textarea
-              className="flex-1 bg-transparent px-3 py-2.5 text-[#EDE5DC] outline-none resize-none"
+              className="w-full bg-transparent px-3 py-2.5 text-[#EDE5DC] outline-none resize-none"
               rows={2}
               value={state.rule}
               onChange={(e) => update({ rule: e.target.value })}
-              placeholder="___"
+              placeholder="completa la regla..."
             />
           </div>
+          <Hint>ej. "es la versión de prueba de otra cosa que nunca llega"</Hint>
         </div>
       </div>
 
