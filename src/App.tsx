@@ -770,7 +770,7 @@ export default function App() {
               style={{ fontFamily: "IBM Plex Mono", color: INK }}>
               Umbral
             </h1>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-5">
               <span
                 className="text-[10px] tracking-widest transition-opacity duration-500"
                 style={{ color: BLUE, opacity: showSaved ? 1 : 0 }}>
@@ -779,6 +779,24 @@ export default function App() {
               <span className="text-[10px] tracking-widest hidden sm:block" style={{ color: MUTED }}>
                 construcción de mundos
               </span>
+              {state.started && (
+                <button
+                  className="text-[10px] uppercase tracking-widest transition-colors pb-0.5"
+                  style={{ color: FAINT, borderBottom: `1px solid ${FAINT}` }}
+                  onMouseOver={e => { e.currentTarget.style.color = RED; e.currentTarget.style.borderColor = RED; }}
+                  onMouseOut={e => { e.currentTarget.style.color = FAINT; e.currentTarget.style.borderColor = FAINT; }}
+                  onClick={() => {
+                    if (confirm("¿Empezar de cero? Se perderá el mundo actual.")) {
+                      const fresh: State = { ...INITIAL };
+                      save(fresh);
+                      setState(fresh);
+                      setMaxReached(0);
+                      setAnimKey(k => k + 1);
+                    }
+                  }}>
+                  reiniciar
+                </button>
+              )}
             </div>
           </div>
           {state.started && <div className="max-w-7xl mx-auto px-6 lg:px-12"><PhaseNav phase={state.phase} maxReached={maxReached} onGo={goTo} /></div>}

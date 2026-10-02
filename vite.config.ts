@@ -30,6 +30,7 @@ react(),
         '@': path.resolve(__dirname, './src'),
       },
     },
+    envDir: '.',
     server: {
       host: process.env.FIGMA_DEV_SERVER_HOST || '0.0.0.0',
       port: parseInt(process.env.PORT || '8443'),
