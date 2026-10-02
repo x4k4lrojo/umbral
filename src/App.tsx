@@ -6,18 +6,14 @@ type Phase = 0 | 1 | 2 | 3 | 4;
 
 interface State {
   phase: Phase;
-  // Phase 1
   verbs: string[];
   chosenVerb: string;
-  // Phase 2
   noun: string;
   mother: string;
   cantPhoto: boolean;
   rule: string;
-  // Phase 3
   river: string;
   riverUsed: boolean;
-  // Phase 4
   projectName: string;
   userCard: string;
   scaleCard: string;
@@ -29,7 +25,6 @@ interface State {
   objUser: string;
   objRelations: string;
   objPieces: string;
-  // Phase 5
   answers: [boolean | null, boolean | null, boolean | null];
 }
 
@@ -107,24 +102,23 @@ function saveState(s: State) {
 
 function ProgressBar({ phase }: { phase: Phase }) {
   return (
-    <div className="flex items-center gap-0">
+    <div className="flex items-stretch">
       {PHASES.map((label, i) => {
         const active = i === phase;
         const done = i < phase;
         return (
           <div
             key={label}
-            className="flex-1 flex flex-col items-center py-3 border-r last:border-r-0"
-            style={{ borderColor: "#3D3530" }}
+            className="flex-1 flex flex-col items-center py-3"
             style={{
+              borderRight: i < PHASES.length - 1 ? "1px solid #3D3530" : "none",
               borderBottom: active ? "2px solid #B8650A" : "2px solid transparent",
-              marginBottom: -1,
             }}
           >
             <span
               className="text-[10px] tracking-widest uppercase"
               style={{
-                color: active ? "#B8650A" : done ? "#EDE5DC" : "#6B6058",
+                color: active ? "#B8650A" : done ? "#EDE5DC" : "#4A4038",
                 fontWeight: active ? 600 : 400,
               }}
             >
@@ -133,6 +127,50 @@ function ProgressBar({ phase }: { phase: Phase }) {
           </div>
         );
       })}
+    </div>
+  );
+}
+
+// ─── PhaseHeading ─────────────────────────────────────────────────────────────
+
+function PhaseHeading({ children }: { children: React.ReactNode }) {
+  return (
+    <p
+      className="leading-snug mb-6"
+      style={{ fontFamily: "Newsreader", fontSize: "1.3rem", color: "#EDE5DC" }}
+    >
+      {children}
+    </p>
+  );
+}
+
+// ─── AdvanceButton ───────────────────────────────────────────────────────────
+
+function AdvanceButton({
+  label,
+  enabled,
+  onClick,
+}: {
+  label: string;
+  enabled: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <div className="pt-6 mt-2" style={{ borderTop: "1px solid #3D3530" }}>
+      <button
+        disabled={!enabled}
+        className="w-full py-4 text-xs uppercase tracking-widest transition-colors"
+        style={{
+          border: "1px solid",
+          borderColor: enabled ? "#B8650A" : "#3D3530",
+          color: enabled ? "#1A1612" : "#4A4038",
+          background: enabled ? "#B8650A" : "transparent",
+          cursor: enabled ? "pointer" : "not-allowed",
+        }}
+        onClick={onClick}
+      >
+        {label}
+      </button>
     </div>
   );
 }
@@ -151,28 +189,48 @@ function FlipCard({
   onFlip: () => void;
 }) {
   return (
-    <div className="card-flip" style={{ height: 110 }}>
+    <div className="card-flip" style={{ height: 120 }}>
       <div className={`card-inner ${flipped ? "flipped" : ""}`}>
-        {/* Front */}
         <div
-          className="card-face border border-[#2E2820] cursor-pointer flex flex-col items-center justify-center bg-[#1A1612] hover:bg-[#2A2218] transition-colors"
+          className="card-face border cursor-pointer flex flex-col items-center justify-center bg-[#1A1612] hover:bg-[#211D19] transition-colors"
+          style={{ borderColor: "#3D3530" }}
           onClick={!flipped ? onFlip : undefined}
         >
-          <span className="text-[10px] tracking-widest uppercase text-[#6B6058] mb-1">{label}</span>
-          <span className="text-lg" style={{ color: "#4A4038" }}>◆</span>
-          <span className="text-[10px] text-[#6B6058] mt-1">voltear</span>
+          <span className="text-[10px] tracking-widest uppercase mb-2" style={{ color: "#4A4038" }}>{label}</span>
+          <span className="text-base" style={{ color: "#3D3530" }}>◆</span>
+          <span className="text-[10px] mt-2" style={{ color: "#4A4038" }}>voltear</span>
         </div>
-        {/* Back */}
         <div
-          className="card-face card-back border border-[#B8650A] flex flex-col items-center justify-center px-3 text-center"
-          style={{ background: "#211D19" }}
+          className="card-face card-back border flex flex-col items-center justify-center px-3 text-center"
+          style={{ borderColor: "#B8650A", background: "#211D19" }}
         >
-          <span className="text-[10px] tracking-widest uppercase mb-1" style={{ color: "#B8650A" }}>{label}</span>
-          <span className="text-sm font-semibold" style={{ fontFamily: "IBM Plex Mono", color: "#EDE5DC" }}>
+          <span className="text-[10px] tracking-widest uppercase mb-2" style={{ color: "#B8650A" }}>{label}</span>
+          <span className="text-sm font-semibold" style={{ fontFamily: "IBM Plex Mono", color: "#EDE5DC", lineHeight: 1.4 }}>
             {value}
           </span>
         </div>
       </div>
+    </div>
+  );
+}
+
+// ─── FadePhase ───────────────────────────────────────────────────────────────
+
+function FadePhase({ phase, children }: { phase: Phase; children: React.ReactNode }) {
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setVisible(true), 20);
+    return () => clearTimeout(t);
+  }, [phase]);
+
+  return (
+    <div
+      style={{
+        opacity: visible ? 1 : 0,
+        transition: "opacity 180ms ease",
+      }}
+    >
+      {children}
     </div>
   );
 }
@@ -190,70 +248,62 @@ function Phase1({ state, update }: { state: State; update: (s: Partial<State>) =
     setInput("");
   };
 
-  const canProceed = state.verbs.length >= 3 && state.chosenVerb;
+  const canProceed = state.verbs.length >= 3 && !!state.chosenVerb;
 
   return (
-    <div className="space-y-6">
-      <p className="text-xs tracking-wide uppercase text-[#6B6058]">Fase 01 / Leer</p>
-      <p className="text-base leading-relaxed" style={{ fontFamily: "Newsreader", fontSize: "1.1rem" }}>
+    <div>
+      <PhaseHeading>
         Lee el mundo: ¿qué hiciste hoy con las manos? ¿qué hace tu entorno?
-      </p>
+      </PhaseHeading>
 
-      <div className="flex gap-2">
-        <input
-          className="flex-1 border border-[#4A4038] bg-transparent px-3 py-2 text-[#EDE5DC] outline-none focus:border-[#B8650A]"
-          placeholder="escribe un verbo..."
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && addVerb()}
-        />
-        <button
-          className="border border-[#EDE5DC] px-4 py-2 text-xs uppercase tracking-widest hover:bg-[#EDE5DC] hover:text-[#1A1612] transition-colors"
-          onClick={addVerb}
-        >
-          Agregar
-        </button>
+      <div className="space-y-5">
+        <div className="flex gap-2">
+          <input
+            className="flex-1 border border-[#4A4038] bg-transparent px-3 py-2.5 text-[#EDE5DC] outline-none focus:border-[#B8650A]"
+            placeholder="escribe un verbo..."
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && addVerb()}
+          />
+          <button
+            className="border border-[#4A4038] px-4 py-2 text-xs uppercase tracking-widest text-[#EDE5DC] hover:border-[#EDE5DC] transition-colors"
+            onClick={addVerb}
+          >
+            +
+          </button>
+        </div>
+
+        {state.verbs.length > 0 && (
+          <div style={{ border: "1px solid #3D3530" }}>
+            <p className="text-[10px] tracking-widest uppercase px-3 pt-3 pb-1" style={{ color: "#4A4038" }}>
+              elige uno
+            </p>
+            {state.verbs.map((v) => (
+              <button
+                key={v}
+                className="w-full text-left px-3 py-2.5 text-sm transition-colors"
+                style={{
+                  borderTop: "1px solid #3D3530",
+                  background: state.chosenVerb === v ? "#B8650A" : "transparent",
+                  color: state.chosenVerb === v ? "#1A1612" : "#EDE5DC",
+                  fontFamily: "IBM Plex Mono",
+                }}
+                onClick={() => update({ chosenVerb: v })}
+              >
+                {state.chosenVerb === v ? "→ " : "   "}{v}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {state.verbs.length < 3 && (
+          <p className="text-[11px]" style={{ color: "#4A4038" }}>
+            {3 - state.verbs.length} verbo{3 - state.verbs.length !== 1 ? "s" : ""} más antes de elegir
+          </p>
+        )}
       </div>
 
-      {state.verbs.length > 0 && (
-        <div className="border border-[#2E2820]">
-          <p className="text-[10px] tracking-widest uppercase text-[#6B6058] px-3 pt-2 pb-1">
-            elige uno —
-          </p>
-          {state.verbs.map((v) => (
-            <button
-              key={v}
-              className="w-full text-left px-3 py-2 border-t border-[#2E2820] text-sm transition-colors"
-              style={{
-                background: state.chosenVerb === v ? "#B8650A" : "transparent",
-                color: state.chosenVerb === v ? "#1A1612" : "#EDE5DC",
-                fontFamily: "IBM Plex Mono",
-              }}
-              onClick={() => update({ chosenVerb: v })}
-            >
-              {v}
-            </button>
-          ))}
-        </div>
-      )}
-
-      {state.verbs.length < 3 && (
-        <p className="text-[11px] text-[#6B6058]">mínimo 3 verbos antes de elegir</p>
-      )}
-
-      <button
-        disabled={!canProceed}
-        className="w-full border py-3 text-xs uppercase tracking-widest transition-colors"
-        style={{
-          borderColor: canProceed ? "#B8650A" : "#EDE5DC",
-          color: canProceed ? "#1A1612" : "#EDE5DC",
-          background: canProceed ? "#B8650A" : "transparent",
-          cursor: canProceed ? "pointer" : "not-allowed",
-        }}
-        onClick={() => update({ phase: 1 })}
-      >
-        Desenterrar →
-      </button>
+      <AdvanceButton label="Desenterrar →" enabled={canProceed} onClick={() => update({ phase: 1 })} />
     </div>
   );
 }
@@ -261,24 +311,21 @@ function Phase1({ state, update }: { state: State; update: (s: Partial<State>) =
 // ─── Phase 2: DESENTERRAR ────────────────────────────────────────────────────
 
 function Phase2({ state, update }: { state: State; update: (s: Partial<State>) => void }) {
-  const canProceed = state.noun && state.mother && state.rule;
+  const canProceed = !!(state.noun && state.mother && state.rule);
 
   return (
-    <div className="space-y-5">
-      <p className="text-xs tracking-wide uppercase text-[#6B6058]">Fase 02 / Desenterrar</p>
+    <div>
+      <PhaseHeading>
+        Convierte <em style={{ color: "#B8650A", fontStyle: "normal" }}>{state.chosenVerb}</em> en una condición de mundo.
+      </PhaseHeading>
 
-      <div className="border border-[#B8650A] px-3 py-2 inline-block">
-        <span className="text-[10px] uppercase tracking-widest text-[#B8650A]">verbo elegido</span>
-        <p className="text-lg mt-0.5" style={{ fontFamily: "Newsreader" }}>{state.chosenVerb}</p>
-      </div>
-
-      <div className="space-y-4">
+      <div className="space-y-5">
         <div>
-          <label className="text-[10px] uppercase tracking-widest text-[#6B6058] block mb-1">
+          <label className="text-[10px] uppercase tracking-widest block mb-2" style={{ color: "#4A4038" }}>
             Conviértelo en sustantivo
           </label>
           <input
-            className="w-full border border-[#4A4038] bg-transparent px-3 py-2 text-[#EDE5DC] outline-none focus:border-[#B8650A]"
+            className="w-full border border-[#4A4038] bg-transparent px-3 py-2.5 text-[#EDE5DC] outline-none focus:border-[#B8650A]"
             value={state.noun}
             onChange={(e) => update({ noun: e.target.value })}
             placeholder="el sustantivo..."
@@ -286,41 +333,47 @@ function Phase2({ state, update }: { state: State; update: (s: Partial<State>) =
         </div>
 
         <div>
-          <label className="text-[10px] uppercase tracking-widest text-[#6B6058] block mb-1">
-            Súbelo a condición (la madre)
+          <label className="text-[10px] uppercase tracking-widest block mb-2" style={{ color: "#4A4038" }}>
+            Súbelo a condición — la madre
           </label>
           <input
-            className="w-full border border-[#4A4038] bg-transparent px-3 py-2 text-[#EDE5DC] outline-none focus:border-[#B8650A]"
+            className="w-full border border-[#4A4038] bg-transparent px-3 py-2.5 text-[#EDE5DC] outline-none focus:border-[#B8650A]"
             value={state.mother}
             onChange={(e) => update({ mother: e.target.value })}
             placeholder="la condición madre..."
           />
         </div>
 
-        <label className="flex items-center gap-3 cursor-pointer">
+        <label className="flex items-center gap-3 cursor-pointer select-none">
           <div
             className="w-4 h-4 border flex items-center justify-center flex-shrink-0 transition-colors"
             style={{
-              borderColor: state.cantPhoto ? "#B8650A" : "#2E2820",
+              borderColor: state.cantPhoto ? "#B8650A" : "#4A4038",
               background: state.cantPhoto ? "#B8650A" : "transparent",
             }}
             onClick={() => update({ cantPhoto: !state.cantPhoto })}
           >
             {state.cantPhoto && <span className="text-[#1A1612] text-xs leading-none">✓</span>}
           </div>
-          <span className="text-xs text-[#EDE5DC]">No se puede fotografiar directamente</span>
+          <span className="text-xs" style={{ color: "#EDE5DC" }}>No se puede fotografiar directamente</span>
         </label>
 
         <div>
-          <label className="text-[10px] uppercase tracking-widest text-[#6B6058] block mb-1">
+          <label className="text-[10px] uppercase tracking-widest block mb-2" style={{ color: "#4A4038" }}>
             La regla del mundo
           </label>
-          <div className="border border-[#4A4038] focus-within:border-[#B8650A] flex items-start">
-            <span className="px-3 py-2 text-[#6B6058] text-sm whitespace-nowrap flex-shrink-0" style={{ fontFamily: "IBM Plex Mono" }}>
+          <div
+            className="flex items-start focus-within:border-[#B8650A] transition-colors"
+            style={{ border: "1px solid #4A4038" }}
+          >
+            <span
+              className="px-3 py-2.5 text-sm whitespace-nowrap flex-shrink-0"
+              style={{ fontFamily: "IBM Plex Mono", color: "#4A4038", borderRight: "1px solid #3D3530" }}
+            >
               En este mundo, todo
             </span>
             <textarea
-              className="flex-1 bg-transparent px-2 py-2 text-[#EDE5DC] outline-none resize-none"
+              className="flex-1 bg-transparent px-3 py-2.5 text-[#EDE5DC] outline-none resize-none"
               rows={2}
               value={state.rule}
               onChange={(e) => update({ rule: e.target.value })}
@@ -330,19 +383,7 @@ function Phase2({ state, update }: { state: State; update: (s: Partial<State>) =
         </div>
       </div>
 
-      <button
-        disabled={!canProceed}
-        className="w-full border py-3 text-xs uppercase tracking-widest transition-colors"
-        style={{
-          borderColor: canProceed ? "#B8650A" : "#EDE5DC",
-          color: canProceed ? "#1A1612" : "#EDE5DC",
-          background: canProceed ? "#B8650A" : "transparent",
-          cursor: canProceed ? "pointer" : "not-allowed",
-        }}
-        onClick={() => update({ phase: 2 })}
-      >
-        Saltar →
-      </button>
+      <AdvanceButton label="Saltar →" enabled={canProceed} onClick={() => update({ phase: 2 })} />
     </div>
   );
 }
@@ -355,84 +396,80 @@ function Phase3({ state, update }: { state: State; update: (s: Partial<State>) =
     update({ river: r, riverUsed: state.river !== "" });
   };
 
-  const canRedraw = state.river && !state.riverUsed;
   const canProceed = !!state.river;
 
   return (
-    <div className="space-y-6">
-      <p className="text-xs tracking-wide uppercase text-[#6B6058]">Fase 03 / Saltar</p>
+    <div>
+      <PhaseHeading>
+        Saca un río al azar. El cruce con tu madre es el territorio.
+      </PhaseHeading>
 
-      <div className="grid grid-cols-2 gap-3">
-        <div className="border border-[#B8650A] px-3 py-2">
-          <span className="text-[10px] uppercase tracking-widest text-[#B8650A]">madre</span>
-          <p className="text-sm mt-0.5" style={{ fontFamily: "Newsreader" }}>{state.mother}</p>
+      <div className="space-y-5">
+        <div className="grid grid-cols-2 gap-3">
+          <div style={{ border: "1px solid #B8650A", padding: "10px 12px" }}>
+            <span className="text-[10px] uppercase tracking-widest block mb-1" style={{ color: "#B8650A" }}>madre</span>
+            <p className="text-sm" style={{ fontFamily: "Newsreader", color: "#EDE5DC" }}>{state.mother}</p>
+          </div>
+          <div
+            className="flex flex-col items-center justify-center"
+            style={{ border: "1px solid #3D3530", padding: "10px 12px" }}
+          >
+            <span className="text-[10px] uppercase tracking-widest block mb-1" style={{ color: "#4A4038" }}>río</span>
+            {state.river
+              ? <p className="text-sm" style={{ fontFamily: "Newsreader", color: "#B8650A" }}>{state.river}</p>
+              : <span style={{ color: "#3D3530" }}>?</span>
+            }
+          </div>
         </div>
-        <div className="border border-[#2E2820] px-3 py-2 flex flex-col items-center justify-center">
-          <span className="text-[10px] uppercase tracking-widest text-[#6B6058]">río</span>
-          {state.river ? (
-            <p className="text-sm mt-0.5" style={{ fontFamily: "Newsreader", color: "#B8650A" }}>{state.river}</p>
-          ) : (
-            <span className="text-[#2E2820] text-lg">?</span>
+
+        {state.river && (
+          <div className="text-center py-4" style={{ border: "1px solid #EDE5DC" }}>
+            <span className="text-[10px] uppercase tracking-widest block mb-2" style={{ color: "#4A4038" }}>el cruce</span>
+            <p style={{ fontFamily: "Newsreader", fontSize: "1.2rem" }}>
+              <span style={{ color: "#B8650A" }}>{state.mother}</span>
+              <span style={{ color: "#6B6058", margin: "0 10px" }}>×</span>
+              <span style={{ color: "#B8650A" }}>{state.river}</span>
+            </p>
+          </div>
+        )}
+
+        <div className="flex gap-3">
+          <button
+            className="flex-1 py-3 text-xs uppercase tracking-widest transition-colors"
+            style={{
+              border: "1px solid #B8650A",
+              color: "#1A1612",
+              background: "#B8650A",
+              opacity: state.riverUsed ? 0.4 : 1,
+              cursor: state.riverUsed ? "not-allowed" : "pointer",
+            }}
+            onClick={drawRiver}
+            disabled={state.riverUsed}
+          >
+            {state.river ? "nuevo río" : "saca un río"}
+          </button>
+          {state.river && !state.riverUsed && (
+            <button
+              className="px-5 py-3 text-xs uppercase tracking-widest transition-colors"
+              style={{ border: "1px solid #4A4038", color: "#6B6058" }}
+              onClick={drawRiver}
+            >
+              otra vez
+            </button>
           )}
         </div>
-      </div>
 
-      {state.river && (
-        <div className="border border-[#EDE5DC] px-4 py-3 text-center">
-          <span className="text-[10px] uppercase tracking-widest text-[#6B6058] block mb-1">el cruce</span>
-          <p className="text-base" style={{ fontFamily: "Newsreader", fontSize: "1.15rem" }}>
-            <span style={{ color: "#B8650A" }}>{state.mother}</span>
-            <span className="mx-2 text-[#2E2820]">×</span>
-            <span style={{ color: "#B8650A" }}>{state.river}</span>
-          </p>
-        </div>
-      )}
-
-      <div className="flex gap-3">
-        <button
-          className="flex-1 border py-3 text-xs uppercase tracking-widest transition-colors"
-          style={{
-            borderColor: "#B8650A",
-            color: "#1A1612",
-            background: "#B8650A",
-          }}
-          onClick={drawRiver}
-          disabled={state.riverUsed}
-        >
-          {state.river ? "nuevo río" : "saca un río"}
-        </button>
-        {state.river && !state.riverUsed && (
-          <button
-            className="border border-[#2E2820] px-4 py-3 text-xs uppercase tracking-widest text-[#6B6058] hover:border-[#EDE5DC] hover:text-[#EDE5DC] transition-colors"
-            onClick={drawRiver}
-          >
-            Otra vez
-          </button>
+        {state.riverUsed && (
+          <p className="text-[11px]" style={{ color: "#4A4038" }}>solo puedes volver a sacar una vez</p>
         )}
       </div>
 
-      {state.riverUsed && (
-        <p className="text-[11px] text-[#6B6058]">solo puedes volver a sacar una vez</p>
-      )}
-
-      <button
-        disabled={!canProceed}
-        className="w-full border py-3 text-xs uppercase tracking-widest transition-colors"
-        style={{
-          borderColor: canProceed ? "#B8650A" : "#EDE5DC",
-          color: canProceed ? "#1A1612" : "#EDE5DC",
-          background: canProceed ? "#B8650A" : "transparent",
-          cursor: canProceed ? "pointer" : "not-allowed",
-        }}
-        onClick={() => update({ phase: 3 })}
-      >
-        Construir →
-      </button>
+      <AdvanceButton label="Construir →" enabled={canProceed} onClick={() => update({ phase: 3 })} />
     </div>
   );
 }
 
-// ─── Phase 4: CONSTRUIR ───────────────────────────────────────────────────────
+// ─── Phase 4: CONSTRUIR ──────────────────────────────────────────────────────
 
 function Phase4({ state, update }: { state: State; update: (s: Partial<State>) => void }) {
   const drawUser = () =>
@@ -448,88 +485,69 @@ function Phase4({ state, update }: { state: State; update: (s: Partial<State>) =
     if (!state.wildcardCard) drawWildcard();
   }, []);
 
-  const canProceed =
+  const canProceed = !!(
     state.projectName &&
     state.userFlipped &&
     state.scaleFlipped &&
     state.wildcardFlipped &&
     state.objName &&
     state.objUser &&
-    state.objPieces;
+    state.objPieces
+  );
 
   return (
-    <div className="space-y-5">
-      <p className="text-xs tracking-wide uppercase text-[#6B6058]">Fase 04 / Construir</p>
+    <div>
+      <PhaseHeading>
+        Nombra el proyecto. Voltea las tres cartas. Completa la ficha del objeto.
+      </PhaseHeading>
 
-      <div>
-        <label className="text-[10px] uppercase tracking-widest text-[#6B6058] block mb-1">
-          Nombre del proyecto musical
-        </label>
-        <p className="text-[10px] text-[#6B6058] mb-1">nómbralo a partir de la regla, no del verbo</p>
-        <input
-          className="w-full border border-[#4A4038] bg-transparent px-3 py-2 text-[#EDE5DC] outline-none focus:border-[#B8650A]"
-          value={state.projectName}
-          onChange={(e) => update({ projectName: e.target.value })}
-          placeholder="nombre del proyecto..."
-        />
-      </div>
+      <div className="space-y-6">
+        <div>
+          <label className="text-[10px] uppercase tracking-widest block mb-1" style={{ color: "#4A4038" }}>
+            Nombre del proyecto musical
+          </label>
+          <p className="text-[11px] mb-2" style={{ color: "#4A4038" }}>nómbralo a partir de la regla, no del verbo</p>
+          <input
+            className="w-full border border-[#4A4038] bg-transparent px-3 py-2.5 text-[#EDE5DC] outline-none focus:border-[#B8650A]"
+            value={state.projectName}
+            onChange={(e) => update({ projectName: e.target.value })}
+            placeholder="nombre del proyecto..."
+          />
+        </div>
 
-      <div className="grid grid-cols-3 gap-3">
-        <FlipCard
-          label="Usuario"
-          value={state.userCard}
-          flipped={state.userFlipped}
-          onFlip={() => update({ userFlipped: true })}
-        />
-        <FlipCard
-          label="Escala"
-          value={state.scaleCard}
-          flipped={state.scaleFlipped}
-          onFlip={() => update({ scaleFlipped: true })}
-        />
-        <FlipCard
-          label="Comodín"
-          value={state.wildcardCard}
-          flipped={state.wildcardFlipped}
-          onFlip={() => update({ wildcardFlipped: true })}
-        />
-      </div>
-
-      <div className="border-t border-[#2E2820] pt-4 space-y-4">
-        <p className="text-[10px] uppercase tracking-widest text-[#6B6058]">Ficha del objeto</p>
-
-        {[
-          { label: "Nombre del objeto", key: "objName", ph: "¿cómo se llama?" },
-          { label: "Usuario y qué hace con él", key: "objUser", ph: "¿quién lo usa y cómo?" },
-          { label: "Relaciones con otros objetos", key: "objRelations", ph: "¿con qué convive?" },
-          { label: "Tres piezas que lo componen", key: "objPieces", ph: "lista tres piezas..." },
-        ].map(({ label, key, ph }) => (
-          <div key={key}>
-            <label className="text-[10px] uppercase tracking-widest text-[#6B6058] block mb-1">{label}</label>
-            <textarea
-              className="w-full border border-[#4A4038] bg-transparent px-3 py-2 text-[#EDE5DC] outline-none focus:border-[#B8650A] resize-none"
-              rows={2}
-              value={(state as any)[key]}
-              onChange={(e) => update({ [key]: e.target.value })}
-              placeholder={ph}
-            />
+        {/* Cards — 2 col on mobile, 3 col on wider */}
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <FlipCard label="Usuario" value={state.userCard} flipped={state.userFlipped} onFlip={() => update({ userFlipped: true })} />
+          <FlipCard label="Escala" value={state.scaleCard} flipped={state.scaleFlipped} onFlip={() => update({ scaleFlipped: true })} />
+          <div className="col-span-2 sm:col-span-1">
+            <FlipCard label="Comodín" value={state.wildcardCard} flipped={state.wildcardFlipped} onFlip={() => update({ wildcardFlipped: true })} />
           </div>
-        ))}
+        </div>
+
+        <div className="space-y-4 pt-2" style={{ borderTop: "1px solid #3D3530" }}>
+          <p className="text-[10px] uppercase tracking-widest pt-2" style={{ color: "#4A4038" }}>Ficha del objeto</p>
+
+          {[
+            { label: "Nombre del objeto", key: "objName", ph: "¿cómo se llama?", rows: 1 },
+            { label: "Usuario y qué hace con él", key: "objUser", ph: "¿quién lo usa y cómo?", rows: 2 },
+            { label: "Relaciones con otros objetos", key: "objRelations", ph: "¿con qué convive?", rows: 2 },
+            { label: "Tres piezas que lo componen", key: "objPieces", ph: "lista tres piezas...", rows: 2 },
+          ].map(({ label, key, ph, rows }) => (
+            <div key={key}>
+              <label className="text-[10px] uppercase tracking-widest block mb-1.5" style={{ color: "#4A4038" }}>{label}</label>
+              <textarea
+                className="w-full border border-[#4A4038] bg-transparent px-3 py-2.5 text-[#EDE5DC] outline-none focus:border-[#B8650A] resize-none"
+                rows={rows}
+                value={(state as any)[key]}
+                onChange={(e) => update({ [key]: e.target.value })}
+                placeholder={ph}
+              />
+            </div>
+          ))}
+        </div>
       </div>
 
-      <button
-        disabled={!canProceed}
-        className="w-full border py-3 text-xs uppercase tracking-widest transition-colors"
-        style={{
-          borderColor: canProceed ? "#B8650A" : "#EDE5DC",
-          color: canProceed ? "#1A1612" : "#EDE5DC",
-          background: canProceed ? "#B8650A" : "transparent",
-          cursor: canProceed ? "pointer" : "not-allowed",
-        }}
-        onClick={() => update({ phase: 4 })}
-      >
-        Probar →
-      </button>
+      <AdvanceButton label="Probar →" enabled={canProceed} onClick={() => update({ phase: 4 })} />
     </div>
   );
 }
@@ -561,7 +579,6 @@ function Phase5({
 
   const allAnswered = state.answers.every((a) => a !== null);
 
-  // Q2 expected: NO. Score: Q1 yes + Q2 no + Q3 yes = salto
   const salto =
     allAnswered &&
     state.answers[0] === true &&
@@ -585,95 +602,103 @@ function Phase5({
       link.href = canvas.toDataURL("image/png");
       link.click();
     } catch {
-      alert("Instala html2canvas para descargar la ficha.");
+      alert("No se pudo generar la imagen.");
     }
   };
 
   return (
-    <div className="space-y-6">
-      <p className="text-xs tracking-wide uppercase text-[#6B6058]">Fase 05 / Probar</p>
+    <div>
+      <PhaseHeading>
+        Revisa si el mundo tiene forma propia.
+      </PhaseHeading>
 
-      {/* Ficha */}
-      <div ref={cardRef} className="border border-[#EDE5DC] p-5 space-y-3 bg-[#1A1612]">
-        <p className="text-[10px] uppercase tracking-widest text-[#6B6058] border-b border-[#2E2820] pb-2 mb-3">
-          Umbral — ficha de mundo
-        </p>
-        {[
-          { label: "Verbo", value: state.chosenVerb },
-          { label: "Madre", value: state.mother },
-          { label: "Regla", value: `En este mundo, todo ${state.rule}` },
-          { label: "Cruce", value: `${state.mother} × ${state.river}` },
-          { label: "Proyecto", value: state.projectName },
-          { label: "Objeto", value: state.objName },
-        ].map(({ label, value }) => (
-          <div key={label} className="grid grid-cols-[80px_1fr] gap-2">
-            <span className="text-[10px] uppercase tracking-widest text-[#6B6058] pt-0.5">{label}</span>
-            <span style={{ fontFamily: "Newsreader", fontSize: "0.95rem", color: "#EDE5DC" }}>{value}</span>
-          </div>
-        ))}
-      </div>
-
-      {/* Rúbrica */}
-      <div className="space-y-3">
-        <p className="text-[10px] uppercase tracking-widest text-[#6B6058]">Rúbrica</p>
-        {RUBRIC.map((q, i) => (
-          <div key={i} className="border border-[#2E2820] p-3">
-            <p className="text-sm mb-2" style={{ fontFamily: "Newsreader" }}>{q}</p>
-            <div className="flex gap-3">
-              {[true, false].map((val) => {
-                const active = state.answers[i] === val;
-                return (
-                  <button
-                    key={String(val)}
-                    className="px-4 py-1.5 text-xs uppercase tracking-widest border transition-colors"
-                    style={{
-                      borderColor: active ? "#B8650A" : "#2E2820",
-                      background: active ? "#B8650A" : "transparent",
-                      color: active ? "#1A1612" : "#EDE5DC",
-                    }}
-                    onClick={() => setAnswer(i, val)}
-                  >
-                    {val ? "Sí" : "No"}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {result && (
-        <div
-          className="border-2 px-4 py-4 text-center"
-          style={{ borderColor: result.label === "Salto" ? "#B8650A" : "#EDE5DC" }}
-        >
-          <p
-            className="text-2xl tracking-widest uppercase mb-1"
-            style={{
-              fontFamily: "IBM Plex Mono",
-              color: result.label === "Salto" ? "#B8650A" : "#EDE5DC",
-            }}
-          >
-            {result.label}
+      <div className="space-y-6">
+        {/* Ficha */}
+        <div ref={cardRef} className="p-5 space-y-3 bg-[#1A1612]" style={{ border: "1px solid #EDE5DC" }}>
+          <p className="text-[10px] uppercase tracking-widest pb-2 mb-1" style={{ color: "#4A4038", borderBottom: "1px solid #3D3530" }}>
+            Umbral — ficha de mundo
           </p>
-          <p className="text-sm" style={{ fontFamily: "Newsreader" }}>{result.note}</p>
+          {[
+            { label: "Verbo", value: state.chosenVerb },
+            { label: "Madre", value: state.mother },
+            { label: "Regla", value: `En este mundo, todo ${state.rule}` },
+            { label: "Cruce", value: `${state.mother} × ${state.river}` },
+            { label: "Proyecto", value: state.projectName },
+            { label: "Objeto", value: state.objName },
+          ].map(({ label, value }) => (
+            <div key={label} className="grid gap-2" style={{ gridTemplateColumns: "72px 1fr" }}>
+              <span className="text-[10px] uppercase tracking-widest pt-0.5" style={{ color: "#4A4038" }}>{label}</span>
+              <span style={{ fontFamily: "Newsreader", fontSize: "0.95rem", color: "#EDE5DC" }}>{value}</span>
+            </div>
+          ))}
         </div>
-      )}
 
-      <div className="flex flex-col gap-3">
-        <button
-          className="w-full border border-[#EDE5DC] py-3 text-xs uppercase tracking-widest hover:bg-[#EDE5DC] hover:text-[#1A1612] transition-colors"
-          onClick={downloadCard}
-        >
-          Descargar ficha como imagen
-        </button>
-        <button
-          className="w-full border py-3 text-xs uppercase tracking-widest transition-colors"
-          style={{ borderColor: "#B8650A", color: "#B8650A" }}
-          onClick={() => onRestart(state.objName)}
-        >
-          Volver a leer desde este objeto
-        </button>
+        {/* Rúbrica */}
+        <div className="space-y-3">
+          <p className="text-[10px] uppercase tracking-widest" style={{ color: "#4A4038" }}>Rúbrica</p>
+          {RUBRIC.map((q, i) => (
+            <div key={i} className="p-4" style={{ border: "1px solid #3D3530" }}>
+              <p className="text-sm mb-3 leading-snug" style={{ fontFamily: "Newsreader", color: "#EDE5DC" }}>{q}</p>
+              <div className="flex gap-3">
+                {[true, false].map((val) => {
+                  const active = state.answers[i] === val;
+                  return (
+                    <button
+                      key={String(val)}
+                      className="px-5 py-2 text-xs uppercase tracking-widest transition-colors"
+                      style={{
+                        border: "1px solid",
+                        borderColor: active ? "#B8650A" : "#4A4038",
+                        background: active ? "#B8650A" : "transparent",
+                        color: active ? "#1A1612" : "#EDE5DC",
+                      }}
+                      onClick={() => setAnswer(i, val)}
+                    >
+                      {val ? "Sí" : "No"}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {result && (
+          <div
+            className="px-5 py-5 text-center"
+            style={{ border: `2px solid ${result.label === "Salto" ? "#B8650A" : "#EDE5DC"}` }}
+          >
+            <p
+              className="text-3xl tracking-widest uppercase mb-2"
+              style={{
+                fontFamily: "IBM Plex Mono",
+                color: result.label === "Salto" ? "#B8650A" : "#EDE5DC",
+              }}
+            >
+              {result.label}
+            </p>
+            <p className="text-sm leading-relaxed" style={{ fontFamily: "Newsreader", color: "#6B6058" }}>
+              {result.note}
+            </p>
+          </div>
+        )}
+
+        <div className="flex flex-col gap-3">
+          <button
+            className="w-full py-3.5 text-xs uppercase tracking-widest transition-colors"
+            style={{ border: "1px solid #4A4038", color: "#EDE5DC" }}
+            onClick={downloadCard}
+          >
+            Descargar ficha como imagen
+          </button>
+          <button
+            className="w-full py-3.5 text-xs uppercase tracking-widest transition-colors"
+            style={{ border: "1px solid #B8650A", color: "#B8650A" }}
+            onClick={() => onRestart(state.objName)}
+          >
+            Volver a leer desde este objeto
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -693,10 +718,7 @@ export default function App() {
   }, []);
 
   const restart = (seed: string) => {
-    const fresh: State = {
-      ...INITIAL_STATE,
-      verbs: seed ? [seed] : [],
-    };
+    const fresh: State = { ...INITIAL_STATE, verbs: seed ? [seed] : [] };
     saveState(fresh);
     setState(fresh);
   };
@@ -713,12 +735,9 @@ export default function App() {
 
   return (
     <div className="min-h-screen relative">
-      {/* Grid paper */}
       <div className="grid-paper" />
 
-      {/* App shell — centered sheet on grid */}
       <div className="relative z-10 min-h-screen flex flex-col items-center py-8 px-4">
-        {/* Sheet */}
         <div
           className="w-full flex flex-col"
           style={{
@@ -728,7 +747,7 @@ export default function App() {
             background: "#1A1612",
           }}
         >
-          {/* Sheet header */}
+          {/* Header */}
           <div style={{ borderBottom: "1px solid #3D3530" }}>
             <div className="flex items-baseline justify-between px-5 py-4">
               <h1
@@ -737,7 +756,7 @@ export default function App() {
               >
                 Umbral
               </h1>
-              <span className="text-[10px] tracking-widest" style={{ color: "#6B6058" }}>
+              <span className="text-[10px] tracking-widest" style={{ color: "#4A4038" }}>
                 construcción de mundos
               </span>
             </div>
@@ -746,18 +765,11 @@ export default function App() {
 
           {/* Margin + content */}
           <div className="flex flex-1">
-            {/* Left margin — amber rule like a real notebook */}
-            <div
-              style={{
-                width: 3,
-                background: "#B8650A",
-                flexShrink: 0,
-                opacity: 0.6,
-              }}
-            />
-            {/* Page content */}
+            <div style={{ width: 3, background: "#B8650A", flexShrink: 0, opacity: 0.5 }} />
             <div className="flex-1 px-6 py-7">
-              {renderPhase()}
+              <FadePhase phase={state.phase}>
+                {renderPhase()}
+              </FadePhase>
             </div>
           </div>
         </div>
