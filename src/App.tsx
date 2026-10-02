@@ -63,10 +63,10 @@ const INITIAL: State = {
 
 const PHASE_LABELS = ["Leer", "Desenterrar", "Saltar", "Construir", "Probar"];
 
-const RIVERS   = ["duelo","fiesta","migración","máquina","barrio","silencio","fantasma","ruido","espíritu","utopía","enfermedad","tránsito","contagio","encierro"];
-const USERS    = ["un booker","la abuela de un fan","una curadora de festival","un taxista","un DJ de barrio","una bibliotecaria"];
-const SCALES   = ["cuesta menos de 5.000 pesos","solo lo tienen 12 personas","funciona sin internet","se vende en la calle","dura un solo día"];
-const WILDCARDS= ["se destruye al usarse","el nombre del artista no aparece","cabe en un bolsillo","se hace con lo que hay en la casa"];
+const RIVERS   = ["río A","río B","río C","río D","río E","río F","río G","río H","río I","río J","río K","río L","río M","río N"];
+const USERS    = ["usuario A","usuario B","usuario C","usuario D","usuario E","usuario F"];
+const SCALES   = ["escala A","escala B","escala C","escala D","escala E"];
+const WILDCARDS= ["comodín A","comodín B","comodín C","comodín D"];
 
 const INTROS: Record<Phase, { label: string; body: string }> = {
   0: { label: "Fase 01 / Leer", body: "Antes de crear, lee. Mira tu día y tu entorno: hiciste algo con las manos, te moviste de cierta forma, moldeaste un objeto. Anota los verbos sin juzgarlos. Los verbos menores sirven más que los grandes, porque un mundo motivado en el origen nace de algo real." },
