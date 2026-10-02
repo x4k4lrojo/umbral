@@ -5,9 +5,9 @@ import { useState, useEffect, useRef, useCallback, useLayoutEffect } from "react
 const BLUE = "#4599B8";
 const INK  = "#1A1612";
 const PAPER = "#F0EBE3";
-const GRID  = "#C4BAB0";
-const MUTED = "#9A8F87";
-const FAINT = "#D4CCC4";
+const GRID  = "#6E6560";
+const MUTED = "#5C5550";
+const FAINT = "#8A837C";
 
 type Phase = 0 | 1 | 2 | 3 | 4;
 
