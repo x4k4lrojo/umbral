@@ -1,1 +1,83 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&display=swap');
 @import 'tailwindcss';
+
+@theme {
+  --font-mono: 'IBM Plex Mono', monospace;
+  --font-serif: 'Newsreader', Georgia, serif;
+  --color-cream: #F8EEE4;
+  --color-grid: #D9CFC6;
+  --color-ink: #2B2622;
+  --color-amber: #B8650A;
+  --color-amber-light: #F0DFC4;
+  --color-amber-dim: #7A4307;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #F8EEE4;
+  color: #2B2622;
+  font-family: 'IBM Plex Mono', monospace;
+  margin: 0;
+  padding: 0;
+}
+
+.grid-paper {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image:
+    linear-gradient(to right, #D9CFC6 1px, transparent 1px),
+    linear-gradient(to bottom, #D9CFC6 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+input, textarea {
+  font-family: 'Newsreader', Georgia, serif;
+  font-size: 1rem;
+}
+
+input::placeholder, textarea::placeholder {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.8rem;
+  color: #A89F97;
+}
+
+.card-flip {
+  perspective: 800px;
+}
+
+.card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d;
+}
+
+.card-inner.flipped {
+  transform: rotateY(180deg);
+}
+
+.card-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.card-back {
+  transform: rotateY(180deg);
+}
+
+/* hide scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #D9CFC6; border-radius: 2px; }
+
+@media (max-width: 640px) {
+  input, textarea { font-size: 16px; }
+}
