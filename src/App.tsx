@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { generateDecks, type GeneratedDecks } from "./groq";
 
 // ─── Palette ──────────────────────────────────────────────────────────────────
 
@@ -41,6 +42,7 @@ interface State {
   objPieces: string;
   fichaReviewed: boolean;
   answers: [boolean | null, boolean | null, boolean | null];
+  generatedDecks: GeneratedDecks | null;
 }
 
 const INITIAL: State = {
@@ -56,6 +58,7 @@ const INITIAL: State = {
   objName: "", objUser: "", objRelations: "", objPieces: "",
   fichaReviewed: false,
   answers: [null, null, null],
+  generatedDecks: null,
 };
 
 const PHASE_LABELS = ["Leer", "Desenterrar", "Saltar", "Construir", "Probar"];
@@ -285,8 +288,22 @@ function Phase1({ state, update }: { state: State; update: (s: Partial<State>) =
 // ─── Phase 2: DESENTERRAR ────────────────────────────────────────────────────
 
 function Phase2({ state, update }: { state: State; update: (s: Partial<State>) => void }) {
+  const [generating, setGenerating] = useState(false);
   const tooConcreteBlock = !!(state.mother && !state.cantPhoto);
   const canProceed = !!(state.noun && state.mother && state.rule && state.cantPhoto);
+
+  const handleAdvance = async () => {
+    setGenerating(true);
+    try {
+      const decks = await generateDecks(state.chosenVerb, state.noun, state.mother, state.rule);
+      update({ phase: 2, generatedDecks: decks });
+    } catch {
+      // Fall back to static decks silently
+      update({ phase: 2 });
+    } finally {
+      setGenerating(false);
+    }
+  };
   return (
     <div className="space-y-5">
       <div className="inline-flex items-center gap-2 px-3 py-1.5" style={{ border: `1px solid ${BLUE}` }}>
@@ -338,7 +355,11 @@ function Phase2({ state, update }: { state: State; update: (s: Partial<State>) =
         <Hint>ej. "es la versión de prueba de otra cosa que nunca llega"</Hint>
       </div>
 
-      <PrimaryBtn label="Saltar →" enabled={canProceed} onClick={() => update({ phase: 2 })} />
+      <PrimaryBtn
+        label={generating ? "Generando tu mundo..." : "Saltar →"}
+        enabled={canProceed && !generating}
+        onClick={handleAdvance}
+      />
     </div>
   );
 }
@@ -346,8 +367,9 @@ function Phase2({ state, update }: { state: State; update: (s: Partial<State>) =
 // ─── Phase 3: SALTAR ─────────────────────────────────────────────────────────
 
 function Phase3({ state, update }: { state: State; update: (s: Partial<State>) => void }) {
+  const rivers = state.generatedDecks?.rivers ?? RIVERS;
   const draw = () => {
-    const r = pick(RIVERS, state.river || undefined);
+    const r = pick(rivers, state.river || undefined);
     update({ river: r, riverUsed: state.river !== "" });
   };
   return (
@@ -400,10 +422,14 @@ function Phase3({ state, update }: { state: State; update: (s: Partial<State>) =
 // ─── Phase 4: CONSTRUIR ──────────────────────────────────────────────────────
 
 function Phase4({ state, update }: { state: State; update: (s: Partial<State>) => void }) {
+  const users     = state.generatedDecks?.users     ?? USERS;
+  const scales    = state.generatedDecks?.scales    ?? SCALES;
+  const wildcards = state.generatedDecks?.wildcards ?? WILDCARDS;
+
   useEffect(() => {
-    if (!state.userCard)     update({ userCard: pick(USERS) });
-    if (!state.scaleCard)    update({ scaleCard: pick(SCALES) });
-    if (!state.wildcardCard) update({ wildcardCard: pick(WILDCARDS) });
+    if (!state.userCard)     update({ userCard: pick(users) });
+    if (!state.scaleCard)    update({ scaleCard: pick(scales) });
+    if (!state.wildcardCard) update({ wildcardCard: pick(wildcards) });
   }, []);
 
   const missing: string[] = [];
@@ -436,14 +462,14 @@ function Phase4({ state, update }: { state: State; update: (s: Partial<State>) =
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         <FlipCard label="Usuario" value={state.userCard} flipped={state.userFlipped} used={state.userCardUsed}
           onFlip={() => update({ userFlipped: true })}
-          onRedraw={() => update({ userCard: pick(USERS, state.userCard), userCardUsed: true })} />
+          onRedraw={() => update({ userCard: pick(users, state.userCard), userCardUsed: true })} />
         <FlipCard label="Escala" value={state.scaleCard} flipped={state.scaleFlipped} used={state.scaleCardUsed}
           onFlip={() => update({ scaleFlipped: true })}
-          onRedraw={() => update({ scaleCard: pick(SCALES, state.scaleCard), scaleCardUsed: true })} />
+          onRedraw={() => update({ scaleCard: pick(scales, state.scaleCard), scaleCardUsed: true })} />
         <div className="col-span-2 sm:col-span-1">
           <FlipCard label="Comodín" value={state.wildcardCard} flipped={state.wildcardFlipped} used={state.wildcardCardUsed}
             onFlip={() => update({ wildcardFlipped: true })}
-            onRedraw={() => update({ wildcardCard: pick(WILDCARDS, state.wildcardCard), wildcardCardUsed: true })} />
+            onRedraw={() => update({ wildcardCard: pick(wildcards, state.wildcardCard), wildcardCardUsed: true })} />
         </div>
       </div>
       <Hint>las cartas son restricciones, no sugerencias: el objeto las obedece</Hint>
