@@ -29,12 +29,15 @@ interface State {
   projectName: string;
   userCard: string;
   scaleCard: string;
+  medioCard: string;
   wildcardCard: string;
   userFlipped: boolean;
   scaleFlipped: boolean;
+  medioFlipped: boolean;
   wildcardFlipped: boolean;
   userCardUsed: boolean;
   scaleCardUsed: boolean;
+  medioCardUsed: boolean;
   wildcardCardUsed: boolean;
   objName: string;
   objUser: string;
@@ -52,9 +55,9 @@ const INITIAL: State = {
   noun: "", mother: "", cantPhoto: false, rule: "",
   river: "", riverUsed: false,
   projectName: "",
-  userCard: "", scaleCard: "", wildcardCard: "",
-  userFlipped: false, scaleFlipped: false, wildcardFlipped: false,
-  userCardUsed: false, scaleCardUsed: false, wildcardCardUsed: false,
+  userCard: "", scaleCard: "", medioCard: "", wildcardCard: "",
+  userFlipped: false, scaleFlipped: false, medioFlipped: false, wildcardFlipped: false,
+  userCardUsed: false, scaleCardUsed: false, medioCardUsed: false, wildcardCardUsed: false,
   objName: "", objUser: "", objRelations: "", objPieces: "",
   fichaReviewed: false,
   answers: [null, null, null],
@@ -63,10 +66,11 @@ const INITIAL: State = {
 
 const PHASE_LABELS = ["Leer", "Desenterrar", "Saltar", "Construir", "Probar"];
 
-const RIVERS   = ["río A","río B","río C","río D","río E","río F","río G","río H","río I","río J","río K","río L","río M","río N"];
-const USERS    = ["usuario A","usuario B","usuario C","usuario D","usuario E","usuario F"];
-const SCALES   = ["escala A","escala B","escala C","escala D","escala E"];
-const WILDCARDS= ["comodín A","comodín B","comodín C","comodín D"];
+const RIVERS   = ["latencia","fricción","opacidad","residuo","desgaste","deriva","simulacro","archivo","error","ausencia","ritual","ornamento","escasez","obsolescencia","transparencia","saturación","vacío","repetición","espera","ruina","fragilidad","exceso","intervalo","pliegue","olvido","camuflaje","densidad","hospitalidad","deuda","promesa","azar","vigilancia","intimidad","traducción","remiendo","descomposición","sedimento","anonimato","gravedad","mímesis","interrupción","cuidado"];
+const USERS    = ["el transeúnte","el coleccionista","el guardián","el que llega por accidente","el que vuelve","el mediador","el iniciado","el escéptico","el heredero","el que se queda","el testigo","el cómplice","el que nunca lo verá","el saboteador","el copista","el devoto","el extraviado","el anfitrión","el aprendiz","el crítico","el vecino","el ausente","el insomne","el nostálgico","el impostor","el traductor","el archivista","el niño","el viajero","el que lo encontró tirado","el que paga","el que se aburre","el desencantado","el que no entiende","el que lo usa para otra cosa","el que lo esconde","el que lo comparte","el que llega tarde","el que lo vende","el que lo espera","el que lo recuerda","el que lo reemplaza"];
+const SCALES   = ["existe una sola vez","se copia sin límite","desaparece pronto","es para una sola persona","ocupa un espacio común","dura más que su autor","crece con cada uso","se reparte en fragmentos","existe en un solo lugar","viaja de mano en mano","cabe en un gesto","existe solo mientras alguien lo mira","su precio lo pone quien lo recibe","ocurre una vez al año","se acumula sin terminar","existe en dos lugares a la vez","dura un minuto","dura cien años","lo tienen solo los que estuvieron","existe en una edición numerada","cabe en una ciudad entera","se gasta como una moneda","solo existe en la memoria","hay uno para cada habitante","se cambia por otro objeto","nunca se termina de entregar","llega por partes durante un año","existe solo en una estación","se hereda","ocupa el tamaño de un cuarto","es más pequeño que una uña","se reproduce de boca en boca","lo pagan entre muchos","se agota el día que sale","existe hasta que alguien lo nombra","desaparece si nadie lo usa","cada copia es distinta","hay más copias que oyentes","existe solo como registro de algo que ya pasó","se anuncia pero nunca llega","tarda una vida en completarse","vale lo mismo que un pasaje de bus"];
+const MEDIOS   = ["sonido","impresión","pantalla","cuerpo","espacio","palabra","luz","objeto encontrado","voz","sombra","textil","alimento","olor","agua","tierra","fotografía","imagen en movimiento","código","mapa","correo","transmisión","juego","temperatura","documento","vidrio","cerámica","madera","metal","papel","tinta","humo","hielo","semilla","planta","cera","caminata","conversación","rumor","dibujo","molde","calendario","señalética"];
+const WILDCARDS= ["se destruye al usarse","existe solo como instrucción","cambia con cada uso","nunca se ve completo","necesita de otro para activarse","se esconde de quien lo busca","se completa con el error","solo funciona en silencio","debe regalarse","envejece a la vista","lo termina quien lo recibe","ocurre sin público","tiene una parte prohibida","se repite hasta agotarse","depende del clima","borra su propio origen","contiene otro objeto","se activa al esperar","funciona al revés","solo se entiende en grupo","hay que tocarlo para que suene","cambia de dueño cada semana","tiene instrucciones falsas","se lee en voz alta","no puede fotografiarse","se oye mejor de lejos","deja una marca en quien lo usa","se apaga cuando lo miran","obliga a caminar","solo existe traducido","se arma con piezas de otros","pide permiso antes de empezar","su final es un silencio","tiene una versión secreta","se derrite","cuenta su propia historia","imita a otro objeto","no tiene principio","se corrige solo","deja de funcionar si se explica","pertenece a todos los que lo tocaron","dura lo que dura una respiración"];
 
 const INTROS: Record<Phase, { label: string; body: string }> = {
   0: { label: "Fase 01 / Leer", body: "Antes de crear, lee. Mira tu día y tu entorno: hiciste algo con las manos, te moviste de cierta forma, moldeaste un objeto. Anota los verbos sin juzgarlos. Los verbos menores sirven más que los grandes, porque un mundo motivado en el origen nace de algo real." },
@@ -441,6 +445,7 @@ function Phase4({ state, update }: { state: State; update: (s: Partial<State>) =
   useEffect(() => {
     if (!state.userCard)     update({ userCard: pick(users) });
     if (!state.scaleCard)    update({ scaleCard: pick(scales) });
+    if (!state.medioCard)    update({ medioCard: pick(MEDIOS) });
     if (!state.wildcardCard) update({ wildcardCard: pick(wildcards) });
   }, []);
 
@@ -448,6 +453,7 @@ function Phase4({ state, update }: { state: State; update: (s: Partial<State>) =
   if (!state.projectName)  missing.push("nombre del proyecto");
   if (!state.userFlipped)  missing.push("carta Usuario");
   if (!state.scaleFlipped) missing.push("carta Escala");
+  if (!state.medioFlipped) missing.push("carta Medio");
   if (!state.wildcardFlipped) missing.push("carta Comodín");
   if (!state.objName)  missing.push("nombre del objeto");
   if (!state.objUser)  missing.push("usuario y uso");
@@ -471,18 +477,19 @@ function Phase4({ state, update }: { state: State; update: (s: Partial<State>) =
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <FlipCard label="Usuario" value={state.userCard} flipped={state.userFlipped} used={state.userCardUsed}
           onFlip={() => update({ userFlipped: true })}
           onRedraw={() => update({ userCard: pick(users, state.userCard), userCardUsed: true })} />
         <FlipCard label="Escala" value={state.scaleCard} flipped={state.scaleFlipped} used={state.scaleCardUsed}
           onFlip={() => update({ scaleFlipped: true })}
           onRedraw={() => update({ scaleCard: pick(scales, state.scaleCard), scaleCardUsed: true })} />
-        <div className="col-span-2 sm:col-span-1">
-          <FlipCard label="Comodín" value={state.wildcardCard} flipped={state.wildcardFlipped} used={state.wildcardCardUsed}
-            onFlip={() => update({ wildcardFlipped: true })}
-            onRedraw={() => update({ wildcardCard: pick(wildcards, state.wildcardCard), wildcardCardUsed: true })} />
-        </div>
+        <FlipCard label="Medio" value={state.medioCard} flipped={state.medioFlipped} used={state.medioCardUsed}
+          onFlip={() => update({ medioFlipped: true })}
+          onRedraw={() => update({ medioCard: pick(MEDIOS, state.medioCard), medioCardUsed: true })} />
+        <FlipCard label="Comodín" value={state.wildcardCard} flipped={state.wildcardFlipped} used={state.wildcardCardUsed}
+          onFlip={() => update({ wildcardFlipped: true })}
+          onRedraw={() => update({ wildcardCard: pick(wildcards, state.wildcardCard), wildcardCardUsed: true })} />
       </div>
       <Hint>las cartas son restricciones, no sugerencias: el objeto las obedece</Hint>
 
