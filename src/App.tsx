@@ -2,9 +2,10 @@ import { useState, useEffect, useRef, useCallback, useLayoutEffect } from "react
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const BLUE = "#4599B8";
-const INK  = "#1A1612";
-const PAPER = "#F0EBE3";
+const BLUE  = "#4599B8";
+const RED   = "#E35878";
+const INK   = "#1A1612";
+const PAPER = "#FCF8E9";
 const GRID  = "#6E6560";
 const MUTED = "#5C5550";
 const FAINT = "#8A837C";
@@ -317,7 +318,7 @@ function Phase2({ state, update }: { state: State; update: (s: Partial<State>) =
           </span>
         </label>
         {tooConcreteBlock && (
-          <p className="text-xs mt-2 px-3 py-2" style={{ color: BLUE, border: `1px solid ${BLUE}` }}>
+          <p className="text-xs mt-2 px-3 py-2" style={{ color: RED, border: `1px solid ${RED}` }}>
             Todavía es muy concreto: sube un peldaño más.
           </p>
         )}
@@ -377,7 +378,7 @@ function Phase3({ state, update }: { state: State; update: (s: Partial<State>) =
           <span className="text-[9px] uppercase tracking-widest block mb-2" style={{ color: MUTED }}>el cruce</span>
           <p style={{ fontFamily: "Newsreader", fontSize: "1.25rem" }}>
             <span style={{ color: BLUE }}>{state.mother}</span>
-            <span style={{ color: FAINT, margin: "0 12px" }}>×</span>
+            <span style={{ color: RED, margin: "0 12px" }}>×</span>
             <span style={{ color: BLUE }}>{state.river}</span>
           </p>
         </div>
@@ -549,8 +550,8 @@ function Phase5({ state, update, onRestart }: { state: State; update: (s: Partia
       </div>
 
       {result && (
-        <div className="px-5 py-6 text-center" style={{ border: `2px solid ${result.label === "Salto" ? BLUE : INK}` }}>
-          <p className="text-4xl tracking-widest uppercase mb-2" style={{ fontFamily: "IBM Plex Mono", color: result.label === "Salto" ? BLUE : INK }}>
+        <div className="px-5 py-6 text-center" style={{ border: `2px solid ${result.label === "Salto" ? BLUE : RED}` }}>
+          <p className="text-4xl tracking-widest uppercase mb-2" style={{ fontFamily: "IBM Plex Mono", color: result.label === "Salto" ? BLUE : RED }}>
             {result.label}
           </p>
           <p className="text-sm leading-relaxed" style={{ fontFamily: "Newsreader", color: MUTED }}>{result.note}</p>
@@ -569,7 +570,7 @@ function Phase5({ state, update, onRestart }: { state: State; update: (s: Partia
           onClick={download}>
           Descargar ficha como imagen
         </button>
-        <button className="w-full py-3.5 text-xs uppercase tracking-widest transition-colors" style={{ border: `1px solid ${BLUE}`, color: BLUE }}
+        <button className="w-full py-3.5 text-xs uppercase tracking-widest transition-colors" style={{ border: `1px solid ${RED}`, color: RED }}
           onClick={() => onRestart(state.objName)}>
           Volver a leer desde este objeto
         </button>
