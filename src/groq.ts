@@ -11,55 +11,50 @@ export async function generateDecks(
   mother: string,
   rule: string
 ): Promise<GeneratedDecks> {
-  const apiKey = import.meta.env.VITE_GROQ_API_KEY;
+  const prompt = `Eres asistente de un ejercicio de construcción de mundos sonoros para músicos latinoamericanos.
 
-  if (!apiKey) throw new Error("VITE_GROQ_API_KEY no está configurada");
-
-  const prompt = `Eres asistente de un ejercicio de construcción de mundos sonoros para músicos y artistas latinoamericanos.
-
-El usuario tiene este mundo en construcción:
-- Verbo de origen: "${verb}"
+El usuario tiene este mundo:
+- Verbo: "${verb}"
 - Sustantivo: "${noun}"
 - Condición madre: "${mother}"
-- Regla del mundo: "En este mundo, todo ${rule}"
+- Regla: "En este mundo, todo ${rule}"
 
-Genera opciones para continuar el ejercicio. Deben ser MUY específicas, tensas e inesperadas para ESTE mundo concreto — no genéricas. Deben tener fricción real con "${mother}".
+Genera opciones MUY específicas para ESTE mundo. Sin palabras genéricas.
 
-Devuelve SOLO un objeto JSON válido, sin texto adicional, sin markdown, sin bloques de código:
-{"rivers":["concepto1","concepto2","concepto3","concepto4","concepto5","concepto6","concepto7","concepto8","concepto9","concepto10","concepto11","concepto12","concepto13","concepto14"],"users":["usuario1","usuario2","usuario3","usuario4","usuario5","usuario6"],"scales":["restricción1","restricción2","restricción3","restricción4","restricción5"],"wildcards":["comodín1","comodín2","comodín3","comodín4"]}
+Devuelve SOLO JSON válido sin texto adicional:
+{"rivers":["r1","r2","r3","r4","r5","r6","r7","r8","r9","r10","r11","r12","r13","r14"],"users":["u1","u2","u3","u4","u5","u6"],"scales":["s1","s2","s3","s4","s5"],"wildcards":["w1","w2","w3","w4"]}
 
-Reglas de contenido:
-- rivers: 14 sustantivos simples que al cruzarse con "${mother}" generen un territorio artístico inesperado y específico para este mundo
-- users: 6 personas muy concretas con artículo (ej: "la enfermera del turno de noche", "un cargador de mercado")
-- scales: 5 restricciones de existencia únicas para objetos de este mundo
-- wildcards: 4 propiedades inesperadas que los objetos de este mundo podrían tener`;
+- rivers: 14 sustantivos que al cruzar con "${mother}" generen territorio artístico inesperado
+- users: 6 personas concretas con artículo ("la enfermera de guardia", "un cargador de mercado")
+- scales: 5 restricciones de existencia para objetos de este mundo
+- wildcards: 4 propiedades inesperadas de los objetos de este mundo`;
 
-  // Use local Vite proxy to avoid CORS — proxy injects the Authorization header
-  const response = await fetch("/api/groq/openai/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model: "llama-3.3-70b-versatile",
-      messages: [{ role: "user", content: prompt }],
-      temperature: 0.9,
-      max_tokens: 800,
-    }),
+  const body = JSON.stringify({
+    model: "llama-3.3-70b-versatile",
+    messages: [{ role: "user", content: prompt }],
+    temperature: 0.9,
+    max_tokens: 800,
   });
 
-  if (!response.ok) {
-    const err = await response.text();
-    throw new Error(`Groq API error ${response.status}: ${err}`);
+  // Call via local Vite middleware — no CORS
+  const res = await fetch("/api/groq", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body,
+  });
+
+  if (!res.ok) {
+    const errText = await res.text().catch(() => "");
+    throw new Error(`Groq proxy ${res.status}: ${errText.slice(0, 200)}`);
   }
 
-  const data = await response.json();
-  const text: string = data.choices?.[0]?.message?.content ?? "";
+  const data = await res.json();
+  return parseDecks(data.choices?.[0]?.message?.content ?? "");
+}
 
-  // Extract JSON — strip markdown fences if present
+function parseDecks(text: string): GeneratedDecks {
   const clean = text.replace(/```json?\n?/g, "").replace(/```/g, "").trim();
   const match = clean.match(/\{[\s\S]*\}/);
-  if (!match) throw new Error(`No JSON in response: ${text.slice(0, 200)}`);
-
+  if (!match) throw new Error(`Sin JSON: ${text.slice(0, 100)}`);
   return JSON.parse(match[0]) as GeneratedDecks;
 }

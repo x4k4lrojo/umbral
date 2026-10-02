@@ -26,6 +26,7 @@ react(),
       figmaErrorOverlayReplay(),
       figmaReactRefreshBoundaryFallback(),
       figmaMakeKitPlugin({ storiesGlob: '/src/**/*.stories.{ts,tsx,js,jsx}' }),
+      groqMiddlewarePlugin(groqKey),
     ],
     resolve: {
       alias: {
@@ -41,16 +42,6 @@ react(),
         ignored: [
           '**/.figma/**',
 ],
-      },
-      proxy: {
-        '/api/groq': {
-          target: 'https://api.groq.com',
-          changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/api\/groq/, ''),
-          headers: {
-            'Authorization': `Bearer ${groqKey}`,
-          },
-        },
       },
     },
     preview: {
@@ -369,6 +360,42 @@ function figmaMakeKitPlugin(options: { storiesGlob: string | string[] }): Plugin
           next(err as Error)
         }
       })
+    },
+  }
+}
+
+/** Server-side Groq proxy — bypasses browser CORS restrictions */
+function groqMiddlewarePlugin(apiKey: string): Plugin {
+  return {
+    name: 'groq-middleware',
+    apply: 'serve',
+    configureServer(server) {
+      server.middlewares.use('/api/groq', (req, res) => {
+        if (req.method !== 'POST') { res.statusCode = 405; res.end('Method not allowed'); return; }
+        if (!apiKey) { res.statusCode = 500; res.end(JSON.stringify({ error: 'VITE_GROQ_API_KEY not set' })); return; }
+
+        let body = '';
+        req.on('data', (chunk: Buffer) => { body += chunk.toString(); });
+        req.on('end', async () => {
+          try {
+            const upstream = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`,
+              },
+              body,
+            });
+            const text = await upstream.text();
+            res.statusCode = upstream.status;
+            res.setHeader('Content-Type', 'application/json');
+            res.end(text);
+          } catch (e) {
+            res.statusCode = 500;
+            res.end(JSON.stringify({ error: String(e) }));
+          }
+        });
+      });
     },
   }
 }
