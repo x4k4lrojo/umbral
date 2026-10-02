@@ -29,27 +29,26 @@ Devuelve SOLO JSON válido sin texto adicional:
 - scales: 5 restricciones de existencia para objetos de este mundo
 - wildcards: 4 propiedades inesperadas de los objetos de este mundo`;
 
-  const key = import.meta.env.VITE_MISTRAL_API_KEY;
-  if (!key) throw new Error("Sin clave de API");
+  const body = JSON.stringify({
+    model: "mistral-small-latest",
+    messages: [{ role: "user", content: prompt }],
+    temperature: 0.9,
+    max_tokens: 800,
+  });
 
-  // Try direct browser call to Mistral (they allow CORS)
-  const res = await fetch("https://api.mistral.ai/v1/chat/completions", {
+  // In production (Netlify), use the serverless function proxy
+  // In dev, try the Vite middleware proxy
+  const endpoint = "/.netlify/functions/groq";
+
+  const res = await fetch(endpoint, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${key}`,
-    },
-    body: JSON.stringify({
-      model: "mistral-small-latest",
-      messages: [{ role: "user", content: prompt }],
-      temperature: 0.9,
-      max_tokens: 800,
-    }),
+    headers: { "Content-Type": "application/json" },
+    body,
   });
 
   if (!res.ok) {
     const errText = await res.text().catch(() => "");
-    throw new Error(`Mistral ${res.status}: ${errText.slice(0, 200)}`);
+    throw new Error(`API ${res.status}: ${errText.slice(0, 200)}`);
   }
 
   const data = await res.json();
